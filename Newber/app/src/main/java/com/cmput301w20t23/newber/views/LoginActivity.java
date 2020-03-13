@@ -5,6 +5,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import com.cmput301w20t23.newber.R;
 import com.cmput301w20t23.newber.controllers.UserController;
+import com.cmput301w20t23.newber.helpers.Callback;
+import com.cmput301w20t23.newber.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -37,25 +39,43 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         mAuth = FirebaseAuth.getInstance();
+        userController = new UserController(this);
 
         super.onCreate(savedInstanceState);
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            FirebaseDatabase.getInstance().getReference("users")
-                    .child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            this.userController.getUser(new Callback<User>() {
                 @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    String role = dataSnapshot.child("role").getValue(String.class);
+                public void myResponseCallback(User result) {
+                    String email = result.getEmail();
+                    System.out.println("Email received: " + email);
+
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 }
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
             });
+
+//                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+//                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+//                startActivity(intent);
+//            }
+
+//            FirebaseDatabase.getInstance().getReference("users")
+//                    .child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                    String role = dataSnapshot.child("role").getValue(String.class);
+//                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    startActivity(intent);
+//                }
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//                }
+//            });
         }
 
         else {
@@ -64,8 +84,6 @@ public class LoginActivity extends AppCompatActivity {
             // hide action bar
             ActionBar actionBar = getSupportActionBar();
             actionBar.hide();
-
-            userController = new UserController(this);
         }
     }
 

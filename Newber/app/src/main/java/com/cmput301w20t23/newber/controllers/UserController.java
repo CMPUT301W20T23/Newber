@@ -6,6 +6,8 @@ import android.util.Log;
 import android.util.Patterns;
 import android.widget.Toast;
 
+import com.cmput301w20t23.newber.database.DatabaseAdapter;
+import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.Driver;
 import com.cmput301w20t23.newber.models.Rating;
 import com.cmput301w20t23.newber.models.Rider;
@@ -39,6 +41,8 @@ public class UserController {
     private FirebaseAuth mAuth;
     private Rider rider;
     private Driver driver;
+    private DatabaseAdapter databaseAdapter;
+    private User user;
 
     /**
      * Instantiates a new UserController.
@@ -48,6 +52,7 @@ public class UserController {
     public UserController(Context context) {
         this.context = context;
         this.mAuth = FirebaseAuth.getInstance();
+        this.databaseAdapter = DatabaseAdapter.getInstance();
     }
 
     /**
@@ -139,24 +144,19 @@ public class UserController {
                     FirebaseUser user = mAuth.getCurrentUser();
                     User userObj = new User(firstName, lastName, username, phone, email, user.getUid());
 
-                    FirebaseDatabase.getInstance().getReference("users")
-                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                            .setValue(userObj);
+//                    FirebaseDatabase.getInstance().getReference("users")
+//                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+//                            .setValue(userObj);
+//
+//                    FirebaseDatabase.getInstance().getReference("users")
+//                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+//                            .child("role").setValue(role);
+//
+//                    FirebaseDatabase.getInstance().getReference("users")
+//                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+//                            .child("currentRequestId").setValue("");
 
-                    FirebaseDatabase.getInstance().getReference("users")
-                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                            .child("role").setValue(role);
-
-                    FirebaseDatabase.getInstance().getReference("users")
-                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                            .child("currentRequestId").setValue("");
-
-                    // if the user to be created is a driver, create upvotes and downvotes fields in database
-                    if (role.equals("Driver")) {
-                        FirebaseDatabase.getInstance().getReference("drivers")
-                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                .setValue(new Rating(0, 0));
-                    }
+                    DatabaseAdapter.getInstance().createUser(userObj, role);
 
                     Intent signedUpIntent = new Intent(context, MainActivity.class);
                     signedUpIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -247,10 +247,12 @@ public class UserController {
      * @param user user model
      */
     public void updateUserCurrentRequestId(User user) {
-        FirebaseDatabase.getInstance().getReference("users")
-                .child(user.getUid())
-                .child("currentRequestId")
-                .setValue(user.getCurrentRequestId());
+//        FirebaseDatabase.getInstance().getReference("users")
+//                .child(user.getUid())
+//                .child("currentRequestId")
+//                .setValue(user.getCurrentRequestId());
+
+        this.databaseAdapter.setUserCurrentRequestId(user.getUid(), user.getCurrentRequestId());
     }
 
     /**
@@ -258,9 +260,16 @@ public class UserController {
      * @param user user model
      */
     public void removeUserCurrentRequestId(User user) {
-        FirebaseDatabase.getInstance().getReference("users")
-                .child(user.getUid())
-                .child("currentRequestId")
-                .setValue("");
+//        FirebaseDatabase.getInstance().getReference("users")
+//                .child(user.getUid())
+//                .child("currentRequestId")
+//                .setValue("");
+//
+        this.databaseAdapter.setUserCurrentRequestId(user.getUid(), "");
+    }
+
+    public void getUser(Callback<User> callback) {
+        String uid = mAuth.getCurrentUser().getUid();
+        this.databaseAdapter.getUser(uid, callback);
     }
 }
