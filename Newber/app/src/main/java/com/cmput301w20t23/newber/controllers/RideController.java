@@ -2,6 +2,8 @@ package com.cmput301w20t23.newber.controllers;
 import android.content.Context;
 import androidx.annotation.NonNull;
 
+import com.cmput301w20t23.newber.database.DatabaseAdapter;
+import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.RequestStatus;
 import com.cmput301w20t23.newber.models.Location;
 import com.cmput301w20t23.newber.models.RideRequest;
@@ -22,10 +24,16 @@ import java.util.ArrayList;
 public class RideController {
     private final FirebaseDatabase database;
     private final FirebaseAuth mAuth;
+    private DatabaseAdapter databaseAdapter;
 
     public RideController() {
         this.database = FirebaseDatabase.getInstance();
         this.mAuth = FirebaseAuth.getInstance();
+        this.databaseAdapter = DatabaseAdapter.getInstance();
+    }
+
+    public void getRideRequest(String requestId, Callback<RideRequest> callback) {
+        this.databaseAdapter.getRideRequest(requestId, callback);
     }
 
     public void createRideRequest(final Location startLocation, final Location endLocation, double cost, Rider rider) {

@@ -6,10 +6,8 @@ import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.Rating;
 import com.cmput301w20t23.newber.models.RideRequest;
 import com.cmput301w20t23.newber.models.User;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -24,10 +22,6 @@ public class DatabaseAdapter {
     private CollectionReference users = null;
     private CollectionReference rideRequests = null;
     private CollectionReference ratings = null;
-
-//    private User user;
-//    private RideRequest rideRequest;
-//    private Rating rating;
 
     private static DatabaseAdapter databaseAdapter = null;
 
@@ -90,7 +84,7 @@ public class DatabaseAdapter {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        System.out.println("Adding user successfully written!");
+                        System.out.println("Adding role data written!");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -123,15 +117,18 @@ public class DatabaseAdapter {
                 });
     }
 
-    public void getUser(String uid, final Callback<User> callback) {
-        System.out.println("UID we got: " + uid);
+    public void getUser(String uid, final Callback<Map<String, Object>> callback) {
         DocumentReference docRef = users.document(uid);
 
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 User user = documentSnapshot.toObject(User.class);
-                callback.myResponseCallback(user);
+                Map<String, Object> map = new HashMap<>();
+                map.put("user", user);
+                map.put("role", documentSnapshot.get("role"));
+
+                callback.myResponseCallback(map);
             }
         });
 
@@ -141,7 +138,43 @@ public class DatabaseAdapter {
                 callback.myResponseCallback(null);
             }
         });
-
     }
 
+    public void getRating(String uid, final Callback<Rating> callback) {
+        DocumentReference docRef = ratings.document(uid);
+
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                Rating rating = documentSnapshot.toObject(Rating.class);
+                callback.myResponseCallback(rating);
+            }
+        });
+
+        docRef.get().addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                callback.myResponseCallback(null);
+            }
+        });
+    }
+
+    public void getRideRequest(String requestId, final Callback<RideRequest> callback) {
+        DocumentReference docRef = rideRequests.document(requestId);
+
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                RideRequest rideRequest = documentSnapshot.toObject(RideRequest.class);
+                callback.myResponseCallback(rideRequest);
+            }
+        });
+
+        docRef.get().addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                callback.myResponseCallback(null);
+            }
+        });
+    }
 }

@@ -24,6 +24,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.util.Map;
+
 /**
  * The Android Activity that handles user login.
  *
@@ -45,11 +47,11 @@ public class LoginActivity extends AppCompatActivity {
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            this.userController.getUser(new Callback<User>() {
+            this.userController.getUser(new Callback<Map<String, Object>>() {
                 @Override
-                public void myResponseCallback(User result) {
-                    String email = result.getEmail();
-                    System.out.println("Email received: " + email);
+                public void myResponseCallback(Map<String, Object> result) {
+                    String role = (String) result.get("role");
+                    System.out.println("Role received: " + role);
 
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);

@@ -29,6 +29,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import androidx.annotation.NonNull;
 
+import java.util.Map;
+
 import static android.content.ContentValues.TAG;
 
 /**
@@ -133,6 +135,7 @@ public class UserController {
      * @param email     the user's email
      */
     public void createUser(final String role, final String firstName, final String lastName, final String username, final String phone, final String email) {
+//        this.databaseAdapter.getUser();
         FirebaseDatabase.getInstance().getReference("users").orderByChild("username").equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -144,19 +147,7 @@ public class UserController {
                     FirebaseUser user = mAuth.getCurrentUser();
                     User userObj = new User(firstName, lastName, username, phone, email, user.getUid());
 
-//                    FirebaseDatabase.getInstance().getReference("users")
-//                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-//                            .setValue(userObj);
-//
-//                    FirebaseDatabase.getInstance().getReference("users")
-//                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-//                            .child("role").setValue(role);
-//
-//                    FirebaseDatabase.getInstance().getReference("users")
-//                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-//                            .child("currentRequestId").setValue("");
-
-                    DatabaseAdapter.getInstance().createUser(userObj, role);
+                    databaseAdapter.createUser(userObj, role);
 
                     Intent signedUpIntent = new Intent(context, MainActivity.class);
                     signedUpIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -268,8 +259,12 @@ public class UserController {
         this.databaseAdapter.setUserCurrentRequestId(user.getUid(), "");
     }
 
-    public void getUser(Callback<User> callback) {
+    public void getUser(Callback<Map<String, Object>> callback) {
         String uid = mAuth.getCurrentUser().getUid();
         this.databaseAdapter.getUser(uid, callback);
+    }
+
+    public void getRating(String uid, Callback<Rating> callback) {
+        this.databaseAdapter.getRating(uid ,callback);
     }
 }
