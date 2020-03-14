@@ -22,6 +22,7 @@ import com.cmput301w20t23.newber.controllers.UserController;
 import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.Rating;
 import com.cmput301w20t23.newber.models.User;
+//import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Map;
 

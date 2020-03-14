@@ -14,9 +14,12 @@ import android.widget.TextView;
 
 import com.cmput301w20t23.newber.R;
 import com.cmput301w20t23.newber.controllers.RideController;
+import com.cmput301w20t23.newber.controllers.UserController;
+import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.Driver;
 import com.cmput301w20t23.newber.models.Location;
 import com.cmput301w20t23.newber.models.RideRequest;
+import com.cmput301w20t23.newber.models.User;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -24,11 +27,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import java.util.Map;
 
 /**
  * The Android Activity that handles Driver Accepting Request.
@@ -40,6 +39,7 @@ public class DriverAcceptRequestActivity extends AppCompatActivity implements On
     private GoogleMap googleMap;
     private RideRequest request;
     private RideController rideController;
+    private UserController userController;
     private Driver driver;
 
     @Override
@@ -49,6 +49,7 @@ public class DriverAcceptRequestActivity extends AppCompatActivity implements On
         request = (RideRequest) getIntent().getSerializableExtra("request");
         driver = (Driver) getIntent().getSerializableExtra("driver");
         rideController = new RideController();
+        userController = new UserController(this);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -70,21 +71,13 @@ public class DriverAcceptRequestActivity extends AppCompatActivity implements On
 
         // Get the rider's name and set it in the text view
         final TextView riderName = findViewById(R.id.driver_accept_rider_name);
-        FirebaseDatabase.getInstance()
-                .getReference("users")
-                .child(request.getRider().getUid())
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        String name = dataSnapshot.child("firstName").getValue(String.class) + " " +
-                                dataSnapshot.child("lastName").getValue(String.class);
-
-                        riderName.setText(name);
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) { }
-                });
+        userController.getUser(request.getRider().getUid(), new Callback<Map<String, Object>>() {
+            @Override
+            public void myResponseCallback(Map<String, Object> result) {
+                String name = ((User) result.get("user")).getFullName();
+                riderName.setText(name);
+            }
+        });
 
         // Set the fare
         TextView fare = findViewById(R.id.driver_accept_fare);
@@ -118,6 +111,9 @@ public class DriverAcceptRequestActivity extends AppCompatActivity implements On
         setResult(Activity.RESULT_OK, new Intent());
         request.setDriver(driver);
         rideController.updateDriverAndRequest(request);
+
+        driver.setCurrentRequestId(request.getRequestId());
+        userController.updateUserCurrentRequestId(driver);
         finish();
     }
 }

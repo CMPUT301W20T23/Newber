@@ -1,6 +1,7 @@
 package com.cmput301w20t23.newber.database;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.Rating;
@@ -13,14 +14,20 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Singleton class for accessing the Firestore database
+ */
 public class DatabaseAdapter {
     private FirebaseFirestore db = null;
     private CollectionReference users = null;
@@ -59,6 +66,94 @@ public class DatabaseAdapter {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         System.out.println("Error while adding rating: " + e);
+                    }
+                });
+    }
+
+    public void createRideRequest(User rider, RideRequest rideRequest) {
+        rideRequests.document(rideRequest.getRequestId())
+                .set(rideRequest)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        System.out.println("Creating Ride Request successfully written!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        System.out.println("Error while creating ride request: " + e);
+                    }
+                });
+
+        users.document(rider.getUid())
+                .update("currentRequestId", rideRequest.getRequestId())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        System.out.println("Updating user requestId successfully written!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        System.out.println("Error while updating user requestId: " + e);
+                    }
+                });
+
+    }
+
+    public void removeRideRequest(RideRequest rideRequest) {
+        rideRequests.document(rideRequest.getRequestId())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        System.out.println("Deleting Ride Request successfully written!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        System.out.println("Error while deleting ride request: " + e);
+                    }
+                });
+
+    }
+
+    public void updateRideRequest(RideRequest rideRequest) {
+        rideRequests.document(rideRequest.getRequestId())
+                .set(rideRequest)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        System.out.println("Updating Ride Request successfully written!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        System.out.println("Error while updating ride request: " + e);
+                    }
+                });
+
+    }
+
+    public void getPendingRideRequests(final Callback<ArrayList<RideRequest>> callback) {
+        rideRequests.whereEqualTo("driver", null)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        ArrayList<RideRequest> rideRequests = new ArrayList<>();
+
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                rideRequests.add(document.toObject(RideRequest.class));
+                            }
+                        }
+
+                        callback.myResponseCallback(rideRequests);
                     }
                 });
     }
@@ -181,6 +276,18 @@ public class DatabaseAdapter {
 
     public void getRideRequest(String requestId, final Callback<RideRequest> callback) {
         DocumentReference docRef = rideRequests.document(requestId);
+
+        // Trying to add a listener, did not work. Not sure why
+//        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+//            @Override
+//            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+//                if (documentSnapshot != null && documentSnapshot.exists()) {
+//                    RideRequest rideRequest = documentSnapshot.toObject(RideRequest.class);
+//
+//                    callback.myResponseCallback(rideRequest);
+//                }
+//            }
+//        });
 
         docRef.get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {

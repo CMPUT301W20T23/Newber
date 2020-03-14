@@ -266,6 +266,10 @@ public class UserController {
         this.databaseAdapter.getUser(uid, callback);
     }
 
+    public void getUser(String uid, Callback<Map<String, Object>> callback) {
+        this.databaseAdapter.getUser(uid, callback);
+    }
+
     public void getRating(String uid, Callback<Rating> callback) {
         this.databaseAdapter.getRating(uid ,callback);
     }

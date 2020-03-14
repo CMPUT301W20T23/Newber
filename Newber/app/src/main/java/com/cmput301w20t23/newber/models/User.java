@@ -152,4 +152,6 @@ public class User implements Serializable {
 
     public void setCurrentRequestId(String currRequestId) { this.currRequestId = currRequestId; }
 
+    public String getFullName() { return this.firstName + " " + this.lastName; };
+
 }

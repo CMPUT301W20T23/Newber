@@ -38,36 +38,24 @@ public class RideController {
 
     public void createRideRequest(final Location startLocation, final Location endLocation, double cost, Rider rider) {
         RideRequest rideRequest = new RideRequest(startLocation, endLocation, rider, cost);
-        rider.setCurrentRequestId(rideRequest.getRequestId());
-        database.getReference("rideRequests")
-                .child(rideRequest.getRequestId())
-                .setValue(rideRequest);
-        database.getReference("users").child(rider.getUid()).child("currentRequestId").setValue(rideRequest.getRequestId());
+        this.databaseAdapter.createRideRequest(rider, rideRequest);
     }
 
     public void removeRideRequest(RideRequest rideRequest) {
         // Remove request from firebase requests table
-        FirebaseDatabase.getInstance().getReference("rideRequests")
-                .child(rideRequest.getRequestId()).removeValue();
+        this.databaseAdapter.removeRideRequest(rideRequest);
     }
 
     public void updateDriverAndRequest(RideRequest request) {
         request.setStatus(RequestStatus.OFFERED);
         updateRideRequest(request);
-        updateUserCurrentRequest(request.getRequestId());
     }
 
     public void updateRideRequest(RideRequest request) {
-        database.getReference("rideRequests")
-                .child(request.getRequestId())
-                .setValue(request);
+        databaseAdapter.updateRideRequest(request);
     }
 
-    private void updateUserCurrentRequest(String requestId) {
-        String userUid = mAuth.getCurrentUser().getUid();
-        database.getReference("users")
-                .child(userUid)
-                .child("currentRequestId")
-                .setValue(requestId);
+    public void getPendingRideRequests(Callback<ArrayList<RideRequest>> callback) {
+        databaseAdapter.getPendingRideRequests(callback);
     }
 }

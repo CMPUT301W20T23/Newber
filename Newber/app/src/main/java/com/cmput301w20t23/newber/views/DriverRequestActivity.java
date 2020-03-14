@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import com.cmput301w20t23.newber.R;
+import com.cmput301w20t23.newber.controllers.RideController;
+import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.Driver;
 import com.cmput301w20t23.newber.models.RideRequest;
 import com.cmput301w20t23.newber.models.Rider;
@@ -31,10 +33,6 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.SphericalUtil;
 
 import java.io.IOException;
@@ -61,23 +59,21 @@ public class DriverRequestActivity extends AppCompatActivity implements OnMapRea
     private static final int DRIVER_ACCEPT_REQUEST = 1;
 
     private GoogleMap googleMap;
-    private View mainLayout;
+    private Marker startMarker;
+    private Geocoder geocoder;
     private static final int PERMISSION_REQUEST_LOCATION = 0;
+    private View mainLayout;
+    private RideController rideController;
 
-    // List View and Adapter for all the Requests coming in
     private ArrayAdapter<RideRequest> requestListAdapter;
     private ListView requestListView;
-
-    // Marker to place when driver selects pick-up location
-    private Marker startMarker;
-
-    // For translating Latitude/Longitude to human-readable addresses
-    private Geocoder geocoder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_request);
+
+        rideController = new RideController();
 
         Intent parentIntent = getIntent();
         final Driver driver = (Driver) parentIntent.getSerializableExtra("driver");
@@ -297,55 +293,43 @@ public class DriverRequestActivity extends AppCompatActivity implements OnMapRea
                 SphericalUtil.computeOffset(latLng, distanceCenterToCorner, 45.0);
         final LatLngBounds searchBounds = new LatLngBounds(southwestCorner, northeastCorner);
 
-        // TODO: Make Sorting more efficient
-        // Call the Databasee to find all available requests within a 5km radius, and sort (very simply)
-        // them by distance
-        FirebaseDatabase.getInstance().getReference("rideRequests").orderByChild("driver").equalTo(null)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        ArrayList<RideRequest> openRequests = new ArrayList<RideRequest>();
-                        for (DataSnapshot requestSnapshot : dataSnapshot.getChildren()) {
-                            RideRequest request = requestSnapshot.getValue(RideRequest.class);
-                            LatLng startLatLng = new LatLng(request.getStartLocation().getLatitude(),
-                                    request.getStartLocation().getLongitude());
+        // TODO: Sort by distance
+        rideController.getPendingRideRequests(new Callback<ArrayList<RideRequest>>() {
+            @Override
+            public void myResponseCallback(ArrayList<RideRequest> result) {
+                ArrayList<RideRequest> openRequests = new ArrayList<RideRequest>();
 
-                            if (searchBounds.contains(startLatLng)) {
-                                System.out.println(request.toString());
-                                openRequests.add(request);
-                            }
-                        }
+                for (RideRequest rideRequest : result) {
+                    LatLng startLatLng = new LatLng(rideRequest.getStartLocation().getLatitude(),
+                            rideRequest.getStartLocation().getLongitude());
 
-                        Collections.sort(openRequests, new Comparator<RideRequest>() {
-                            @Override
-                            public int compare(RideRequest o1, RideRequest o2) {
-                                double val1 =
-                                        (latLng.latitude - o1.getStartLocation().getLatitude()) +
-                                        (latLng.longitude - o1.getStartLocation().getLongitude());
-
-                                double val2 =
-                                        (latLng.latitude - o2.getStartLocation().getLatitude()) +
-                                        (latLng.longitude - o2.getStartLocation().getLongitude());
-
-                                return (int) (val1 - val2);
-                            }
-                        });
-
-                        updateRequestList(openRequests);
+                    if (searchBounds.contains(startLatLng)) {
+                        System.out.println(rideRequest.toString());
+                        openRequests.add(rideRequest);
                     }
+                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
+                updateRequestList(latLng, openRequests);
+            }
+        });
     }
 
-    /**
-     * Update the ListView and Adapter to display the open requests available
-     * @param openRequests A List of all open requests available to choose from
-     */
-    private void updateRequestList(ArrayList<RideRequest> openRequests) {
+    private void updateRequestList(final LatLng latLng, ArrayList<RideRequest> openRequests) {
+        Collections.sort(openRequests, new Comparator<RideRequest>() {
+            @Override
+            public int compare(RideRequest o1, RideRequest o2) {
+                double val1 =
+                        (latLng.latitude - o1.getStartLocation().getLatitude()) +
+                                (latLng.longitude - o1.getStartLocation().getLongitude());
+
+                double val2 =
+                        (latLng.latitude - o2.getStartLocation().getLatitude()) +
+                                (latLng.longitude - o2.getStartLocation().getLongitude());
+
+                return (int) (val1 - val2);
+            }
+        });
+
         System.out.println("in updateRequestList");
         for (RideRequest req : openRequests) {
             System.out.println(req.toString());
