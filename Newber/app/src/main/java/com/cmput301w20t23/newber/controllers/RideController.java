@@ -20,14 +20,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Observer;
 
 public class RideController {
-    private final FirebaseDatabase database;
     private final FirebaseAuth mAuth;
     private DatabaseAdapter databaseAdapter;
 
     public RideController() {
-        this.database = FirebaseDatabase.getInstance();
         this.mAuth = FirebaseAuth.getInstance();
         this.databaseAdapter = DatabaseAdapter.getInstance();
     }
@@ -36,7 +35,7 @@ public class RideController {
         this.databaseAdapter.getRideRequest(requestId, callback);
     }
 
-    public void createRideRequest(final Location startLocation, final Location endLocation, double cost, Rider rider) {
+    public void createRideRequest(final Location startLocation, final Location endLocation, double cost, String rider) {
         RideRequest rideRequest = new RideRequest(startLocation, endLocation, rider, cost);
         this.databaseAdapter.createRideRequest(rider, rideRequest);
     }
@@ -57,5 +56,9 @@ public class RideController {
 
     public void getPendingRideRequests(Callback<ArrayList<RideRequest>> callback) {
         databaseAdapter.getPendingRideRequests(callback);
+    }
+
+    public void addObserver(Observer observer) {
+        this.databaseAdapter.addObserver(observer);
     }
 }

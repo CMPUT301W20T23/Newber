@@ -15,6 +15,13 @@ import com.cmput301w20t23.newber.controllers.UserController;
 import com.cmput301w20t23.newber.models.Driver;
 import com.cmput301w20t23.newber.models.RideRequest;
 import com.cmput301w20t23.newber.models.Rider;
+import com.cmput301w20t23.newber.controllers.UserController;
+import com.cmput301w20t23.newber.helpers.Callback;
+import com.cmput301w20t23.newber.models.Driver;
+import com.cmput301w20t23.newber.models.RideRequest;
+import com.cmput301w20t23.newber.models.User;
+
+import java.util.Map;
 
 /**
  * The Android Fragment that is shown when the user has a completed current ride request.
@@ -47,9 +54,9 @@ public class RequestCompletedFragment extends Fragment {
         TextView pickupLocationTextView = view.findViewById(R.id.pickup_location);
         TextView dropoffLocationTextView = view.findViewById(R.id.dropoff_location);
         TextView fareTextView = view.findViewById(R.id.ride_fare);
-        TextView nameTextView = view.findViewById(R.id.rider_main_driver_name);
-        TextView phoneTextView = view.findViewById(R.id.rider_main_driver_phone);
-        TextView emailTextView = view.findViewById(R.id.rider_main_driver_email);
+        final TextView nameTextView = view.findViewById(R.id.rider_main_driver_name);
+        final TextView phoneTextView = view.findViewById(R.id.rider_main_driver_phone);
+        final TextView emailTextView = view.findViewById(R.id.rider_main_driver_email);
         Button completeRequestButton = view.findViewById(R.id.rider_complete_ride_button);
 
         // Set view elements
@@ -58,9 +65,19 @@ public class RequestCompletedFragment extends Fragment {
         fareTextView.setText(Double.toString(rideRequest.getCost()));
 
         // Set driver box information
-        nameTextView.setText(rideRequest.getDriver().getUsername());
-        phoneTextView.setText(rideRequest.getDriver().getPhone());
-        emailTextView.setText(rideRequest.getDriver().getEmail());
+        (((MainActivity) getActivity())).userController.getUser(rideRequest.getDriver(), new Callback<Map<String, Object>>() {
+            @Override
+            public void myResponseCallback(Map<String, Object> result) {
+                User driver = (User) result.get("user");
+                nameTextView.setText(driver.getUsername());
+                phoneTextView.setText(driver.getPhone());
+                emailTextView.setText(driver.getEmail());
+            }
+        });
+
+//        nameTextView.setText(rideRequest.getDriver().getUsername());
+//        phoneTextView.setText(rideRequest.getDriver().getPhone());
+//        emailTextView.setText(rideRequest.getDriver().getEmail());
 
         completeRequestButton.setOnClickListener(new View.OnClickListener()
         {
@@ -68,15 +85,11 @@ public class RequestCompletedFragment extends Fragment {
             public void onClick(View v)
             {
                 // TODO: remove request from firebase user and the requests table
-                Driver tempDriver = rideRequest.getDriver();
-                Rider tempRider = rideRequest.getRider();
-                tempDriver.setCurrentRequestId("");
-                tempRider.setCurrentRequestId("");
 
                 // Update currentRequestId fields of driver
-                userController.updateUserCurrentRequestId(tempDriver);
+                userController.removeUserCurrentRequestId(rideRequest.getDriver());
                 // Update currentRequestId fields of rider
-                userController.updateUserCurrentRequestId(tempRider);
+                userController.removeUserCurrentRequestId(rideRequest.getRider());
             }
         });
         return view;

@@ -25,15 +25,17 @@ import com.cmput301w20t23.newber.models.Rider;
 import com.cmput301w20t23.newber.models.User;
 
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * The Android Activity that acts as the main user screen of the app.
  *
  * @author Amy Hou
  */
-public class MainActivity extends AppCompatActivity {
-    private final UserController userController = new UserController(this);
-    private final RideController rideController = new RideController();
+public class MainActivity extends AppCompatActivity implements Observer {
+    protected final UserController userController = new UserController(this);
+    protected final RideController rideController = new RideController();
 
     /**
      * The user's current ride request.
@@ -67,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        this.rideController.addObserver(this);
     }
 
     public void switchRole() {
@@ -174,5 +177,17 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (arg == null) {
+            currRequest = null;
+        } else {
+            currRequest = (RideRequest) arg;
+            System.out.println("In notified observer: " + currRequest.toString());
+        }
+
+        displayFragment();
     }
 }

@@ -71,7 +71,7 @@ public class DriverAcceptRequestActivity extends AppCompatActivity implements On
 
         // Get the rider's name and set it in the text view
         final TextView riderName = findViewById(R.id.driver_accept_rider_name);
-        userController.getUser(request.getRider().getUid(), new Callback<Map<String, Object>>() {
+        userController.getUser(request.getRider(), new Callback<Map<String, Object>>() {
             @Override
             public void myResponseCallback(Map<String, Object> result) {
                 String name = ((User) result.get("user")).getFullName();
@@ -109,11 +109,11 @@ public class DriverAcceptRequestActivity extends AppCompatActivity implements On
      */
     public void acceptRequest(View view) {
         setResult(Activity.RESULT_OK, new Intent());
-        request.setDriver(driver);
+        request.setDriver(driver.getUid());
         rideController.updateDriverAndRequest(request);
 
         driver.setCurrentRequestId(request.getRequestId());
-        userController.updateUserCurrentRequestId(driver);
+        userController.updateUserCurrentRequestId(driver.getUid(), driver.getCurrentRequestId());
         finish();
     }
 }

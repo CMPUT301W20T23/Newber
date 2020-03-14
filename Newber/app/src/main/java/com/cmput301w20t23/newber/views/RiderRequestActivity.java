@@ -354,7 +354,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         Intent intent = getIntent();
         Rider rider = (Rider) intent.getSerializableExtra("rider");
         System.out.println("rider username:" + rider.getUsername());
-        rideController.createRideRequest(startLocation, endLocation, 10.00, rider);
+        rideController.createRideRequest(startLocation, endLocation, 10.00, rider.getUid());
         finish();
     }
 }

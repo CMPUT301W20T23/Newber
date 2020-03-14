@@ -15,6 +15,7 @@ import com.cmput301w20t23.newber.R;
 import com.cmput301w20t23.newber.controllers.NameOnClickListener;
 import com.cmput301w20t23.newber.controllers.RideController;
 import com.cmput301w20t23.newber.controllers.UserController;
+import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.Driver;
 import com.cmput301w20t23.newber.models.RequestStatus;
 import com.cmput301w20t23.newber.models.RideRequest;
@@ -23,6 +24,8 @@ import com.cmput301w20t23.newber.models.User;
 
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
+import java.util.Map;
 
 /**
  * The Android Fragment that is shown when the user has an accepted current ride request.
@@ -33,6 +36,8 @@ public class RequestAcceptedFragment extends Fragment {
 
     private RideRequest rideRequest;
     private String role;
+    private User driver;
+    private User rider;
 
     /**
      * Instantiate User and RideRequest controllers
@@ -56,15 +61,15 @@ public class RequestAcceptedFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         // View for this fragment
-        View view = inflater.inflate(R.layout.accepted_fragment, container, false);
+        final View view = inflater.inflate(R.layout.accepted_fragment, container, false);
 
         // Get view elements
         TextView pickupLocationTextView = view.findViewById(R.id.pickup_location);
         TextView dropoffLocationTextView = view.findViewById(R.id.dropoff_location);
         TextView fareTextView = view.findViewById(R.id.ride_fare);
-        TextView nameTextView = view.findViewById(R.id.rider_main_driver_name);
-        TextView phoneTextView = view.findViewById(R.id.rider_main_driver_phone);
-        TextView emailTextView = view.findViewById(R.id.rider_main_driver_email);
+        final TextView nameTextView = view.findViewById(R.id.rider_main_driver_name);
+        final TextView phoneTextView = view.findViewById(R.id.rider_main_driver_phone);
+        final TextView emailTextView = view.findViewById(R.id.rider_main_driver_email);
         Button button = view.findViewById(R.id.request_accepted_button);
 
         // Set view elements
@@ -79,10 +84,21 @@ public class RequestAcceptedFragment extends Fragment {
                 button.setBackgroundColor(Color.LTGRAY);
                 button.setText("Cancel");
 
-                // Set values of info box
-                nameTextView.setText(rideRequest.getDriver().getUsername());
-                phoneTextView.setText(rideRequest.getDriver().getPhone());
-                emailTextView.setText(rideRequest.getDriver().getEmail());
+                ((MainActivity) getActivity()).userController.getUser(rideRequest.getDriver(),
+                        new Callback<Map<String, Object>>() {
+                            @Override
+                            public void myResponseCallback(Map<String, Object> result) {
+                                driver = (User) result.get("user");
+                                nameTextView.setText(driver.getUsername());
+                                phoneTextView.setText(driver.getPhone());
+                                emailTextView.setText(driver.getEmail());
+                            }
+                        });
+
+//                // Set values of info box
+//                nameTextView.setText(rideRequest.getDriver().getUsername());
+//                phoneTextView.setText(rideRequest.getDriver().getPhone());
+//                emailTextView.setText(rideRequest.getDriver().getEmail());
 
                 button.setOnClickListener(new View.OnClickListener()
                 {
@@ -90,35 +106,40 @@ public class RequestAcceptedFragment extends Fragment {
                     public void onClick(View v)
                     {
                         // If rider, remove driver from request and set status to PENDING
-                        rideRequest.getDriver().setCurrentRequestId("");
-                        userController.updateUserCurrentRequestId(rideRequest.getDriver());
+//                        rideRequest.getDriver().setCurrentRequestId("");
+
+                        userController.removeUserCurrentRequestId(rideRequest.getDriver());
                         rideRequest.setDriver(null);
                         rideRequest.setStatus(RequestStatus.PENDING);
                         rideController.updateRideRequest(rideRequest);
+
+                        setUpButtons(view);
+                        setUpNameTextView(nameTextView, driver);
                     }
                 });
 
-                ImageButton callButton = view.findViewById(R.id.call_button);
-                ImageButton emailButton = view.findViewById(R.id.email_button);
-                callButton.setVisibility(View.VISIBLE);
-                emailButton.setVisibility(View.VISIBLE);
-
-                callButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        goToCallScreen(rideRequest.getDriver());
-                    }
-                });
-
-                emailButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        goToMailScreen(rideRequest.getDriver());
-                    }
-                });
+//                ImageButton callButton = view.findViewById(R.id.call_button);
+//                ImageButton emailButton = view.findViewById(R.id.email_button);
+//                callButton.setVisibility(View.VISIBLE);
+//                emailButton.setVisibility(View.VISIBLE);
+//
+//                callButton.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        goToCallScreen(rideRequest.getDriver());
+//                    }
+//                });
+//
+//                emailButton.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        goToMailScreen(rideRequest.getDriver());
+//                    }
+//                });
 
                 // Bring up profile when name is clicked
-                nameTextView.setOnClickListener(new NameOnClickListener(role, rideRequest.getDriver()));
+//                nameTextView.setOnClickListener(new NameOnClickListener(role, rideRequest.getDriver()));
+
                 break;
 
             case "Driver": // Rider Picked Up button
@@ -126,9 +147,21 @@ public class RequestAcceptedFragment extends Fragment {
                 button.setText("Rider picked up");
 
                 // Set values of info box
-                nameTextView.setText(rideRequest.getRider().getUsername());
-                phoneTextView.setText(rideRequest.getRider().getPhone());
-                emailTextView.setText(rideRequest.getRider().getEmail());
+                ((MainActivity) getActivity()).userController.getUser(rideRequest.getDriver(),
+                        new Callback<Map<String, Object>>() {
+                            @Override
+                            public void myResponseCallback(Map<String, Object> result) {
+                                rider = (User) result.get("user");
+                                nameTextView.setText(rider.getUsername());
+                                phoneTextView.setText(rider.getPhone());
+                                emailTextView.setText(rider.getEmail());
+                                setUpNameTextView(nameTextView, rider);
+                            }
+                        });
+
+//                nameTextView.setText(rideRequest.getRider().getUsername());
+//                phoneTextView.setText(rideRequest.getRider().getPhone());
+//                emailTextView.setText(rideRequest.getRider().getEmail());
 
                 button.setOnClickListener(new View.OnClickListener()
                 {
@@ -142,11 +175,36 @@ public class RequestAcceptedFragment extends Fragment {
                 });
 
                 // Bring up profile when name is clicked
-                nameTextView.setOnClickListener(new NameOnClickListener(role, rideRequest.getRider()));
+//                nameTextView.setOnClickListener(new NameOnClickListener(role, rideRequest.getRider()));
                 break;
         }
 
         return view;
+    }
+
+    public void setUpButtons(View view) {
+        ImageButton callButton = view.findViewById(R.id.call_button);
+        ImageButton emailButton = view.findViewById(R.id.email_button);
+        callButton.setVisibility(View.VISIBLE);
+        emailButton.setVisibility(View.VISIBLE);
+
+        callButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToCallScreen(driver);
+            }
+        });
+
+        emailButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToMailScreen(driver);
+            }
+        });
+    }
+
+    public void setUpNameTextView(TextView nameTextView, User user) {
+        nameTextView.setOnClickListener(new NameOnClickListener(role, user));
     }
 
     /**
