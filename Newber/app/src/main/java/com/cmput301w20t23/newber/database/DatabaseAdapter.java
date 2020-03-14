@@ -122,6 +122,7 @@ public class DatabaseAdapter {
     }
 
     public void getUser(String uid, final Callback<Map<String, Object>> callback) {
+        System.out.println(uid);
         DocumentReference docRef = users.document(uid);
 
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -133,13 +134,6 @@ public class DatabaseAdapter {
                 map.put("role", documentSnapshot.get("role"));
 
                 callback.myResponseCallback(map);
-            }
-        });
-
-        docRef.get().addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                callback.myResponseCallback(null);
             }
         });
     }
@@ -168,46 +162,49 @@ public class DatabaseAdapter {
     public void getRating(String uid, final Callback<Rating> callback) {
         DocumentReference docRef = ratings.document(uid);
 
-        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                Rating rating = documentSnapshot.toObject(Rating.class);
-                callback.myResponseCallback(rating);
-            }
-        });
+        docRef.get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        Rating rating = documentSnapshot.toObject(Rating.class);
 
-        docRef.get().addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                callback.myResponseCallback(null);
-            }
-        });
+                        callback.myResponseCallback(rating);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.myResponseCallback(null);
+                    }
+                });
     }
 
     public void getRideRequest(String requestId, final Callback<RideRequest> callback) {
         DocumentReference docRef = rideRequests.document(requestId);
 
-        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                RideRequest rideRequest = documentSnapshot.toObject(RideRequest.class);
-                callback.myResponseCallback(rideRequest);
-            }
-        });
-
-        docRef.get().addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                callback.myResponseCallback(null);
-            }
-        });
+        docRef.get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        RideRequest rideRequest = documentSnapshot.toObject(RideRequest.class);
+                        callback.myResponseCallback(rideRequest);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.myResponseCallback(null);
+                    }
+                });
     }
 
-    public void updateUserInfo(User user, String newEmail, String newPhone) {
-        user.setEmail(newEmail);
-        user.setPhone(newPhone);
-        users.document(user.getUid())
-                .set(user)
+    public void updateUserInfo(String uid, String newEmail, String newPhone) {
+        Map<String, Object> newData = new HashMap<>();
+        newData.put("phone", newPhone);
+        newData.put("email", newEmail);
+
+        users.document(uid)
+                .update(newData)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

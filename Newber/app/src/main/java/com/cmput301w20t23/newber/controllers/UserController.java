@@ -13,6 +13,7 @@ import com.cmput301w20t23.newber.models.Rating;
 import com.cmput301w20t23.newber.models.Rider;
 import com.cmput301w20t23.newber.models.User;
 import com.cmput301w20t23.newber.views.MainActivity;
+import com.cmput301w20t23.newber.views.ProfileActivity;
 import com.cmput301w20t23.newber.views.SignUpActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -38,10 +39,7 @@ import static android.content.ContentValues.TAG;
 public class UserController {
     private Context context;
     private FirebaseAuth mAuth;
-    private Rider rider;
-    private Driver driver;
     private DatabaseAdapter databaseAdapter;
-    private User user;
 
     /**
      * Instantiates a new UserController.
@@ -229,7 +227,9 @@ public class UserController {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 firebaseUser.updateEmail(email);
-                                databaseAdapter.updateUserInfo(user, email, phone);
+                                databaseAdapter.updateUserInfo(user.getUid(), email, phone);
+                                //TO DO: Change
+                                ((ProfileActivity) context).updatePhoneEmailText(phone, email);
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
