@@ -23,11 +23,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import androidx.annotation.NonNull;
 
@@ -216,42 +211,38 @@ public class UserController {
      * @param phone    the user's new phone
      * @param password the user's password to re-authenticate in order to change the email
      */
-    public void saveContactInfo(final Context context, final String email, String phone, String password) {
-        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users")
-                .child(mAuth.getCurrentUser().getUid());
+    public void saveContactInfo(final Context context, final String email, final String phone, final String password) {
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        final FirebaseUser firebaseUser = mAuth.getCurrentUser();
 
-        // current credential
-        AuthCredential credential = EmailAuthProvider
-                .getCredential(user.getEmail(), password);
+        databaseAdapter.getUser(mAuth.getCurrentUser().getUid(), new Callback<Map<String, Object>>() {
+            @Override
+            public void myResponseCallback(Map<String, Object> result) {
+                final User user = (User) result.get("user");
 
-        user.reauthenticate(credential)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "User re-authenticated.");
-                        // update email
-                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                        user.updateEmail(email)
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            ref.child("email").setValue(email);
-                                            Log.d(TAG, "User email address updated.");
-                                        }
-                                    }
-                                });
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(context, "Password incorrect. Email could not be updated.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-        ref.child("phone").setValue(phone);
+                // current credential
+                AuthCredential credential = EmailAuthProvider
+                        .getCredential(user.getEmail(), password);
+
+                firebaseUser.reauthenticate(credential)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                firebaseUser.updateEmail(email);
+                                databaseAdapter.updateUserInfo(user, email, phone);
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(context,
+                                        "Password incorrect. Email could not be updated.",
+                                        Toast.LENGTH_SHORT)
+                                        .show();
+                            }
+                        });
+            }
+        });
     }
 
     /**

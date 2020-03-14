@@ -202,4 +202,23 @@ public class DatabaseAdapter {
             }
         });
     }
+
+    public void updateUserInfo(User user, String newEmail, String newPhone) {
+        user.setEmail(newEmail);
+        user.setPhone(newPhone);
+        users.document(user.getUid())
+                .set(user)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        System.out.println("Updating user successfully written!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        System.out.println("Error while updating user: " + e);
+                    }
+                });
+    }
 }
