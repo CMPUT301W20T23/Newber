@@ -6,12 +6,16 @@ import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.Rating;
 import com.cmput301w20t23.newber.models.RideRequest;
 import com.cmput301w20t23.newber.models.User;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
@@ -138,6 +142,27 @@ public class DatabaseAdapter {
                 callback.myResponseCallback(null);
             }
         });
+    }
+
+    public void checkUserName(String username, final Callback<Boolean> callback) {
+        users.whereEqualTo("username", username)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult().size() > 0) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    System.out.println("Username received:" + document.getData());
+                                }
+
+                                callback.myResponseCallback(true);
+                            } else {
+                                callback.myResponseCallback(false);
+                            }
+                        }
+                    }
+                });
     }
 
     public void getRating(String uid, final Callback<Rating> callback) {

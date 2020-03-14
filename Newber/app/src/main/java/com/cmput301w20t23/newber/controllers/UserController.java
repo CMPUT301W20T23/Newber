@@ -13,11 +13,13 @@ import com.cmput301w20t23.newber.models.Rating;
 import com.cmput301w20t23.newber.models.Rider;
 import com.cmput301w20t23.newber.models.User;
 import com.cmput301w20t23.newber.views.MainActivity;
+import com.cmput301w20t23.newber.views.SignUpActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -134,29 +136,48 @@ public class UserController {
      * @param phone     the user's phone
      * @param email     the user's email
      */
-    public void createUser(final String role, final String firstName, final String lastName, final String username, final String phone, final String email) {
-//        this.databaseAdapter.getUser();
-        FirebaseDatabase.getInstance().getReference("users").orderByChild("username").equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
+    public void createUser(final String role,
+                           final String firstName,
+                           final String lastName,
+                           final String username,
+                           final String phone,
+                           final String email,
+                           final String password)
+    {
+        this.databaseAdapter.checkUserName(username, new Callback<Boolean>() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                if (dataSnapshot.exists()) {
+            public void myResponseCallback(Boolean result) {
+                if (result) {
                     Toast.makeText(context, "Username has already been taken", Toast.LENGTH_LONG).show();
+                } else {
+                    mAuth.createUserWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        User newUser = new User(firstName,
+                                                lastName,
+                                                username,
+                                                phone,
+                                                email,
+                                                task.getResult().getUser().getUid());
+
+                                        databaseAdapter.createUser(newUser, role);
+
+                                        Intent signedUpIntent = new Intent(UserController.this.context,
+                                                MainActivity.class);
+
+                                        signedUpIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        UserController.this.context.startActivity(signedUpIntent);
+                                    } else {
+                                        Toast.makeText(UserController.this.context,
+                                                task.getException().toString(),
+                                                Toast.LENGTH_SHORT)
+                                                .show();
+                                    }
+                                }
+                            });
                 }
-                else {
-                    FirebaseUser user = mAuth.getCurrentUser();
-                    User userObj = new User(firstName, lastName, username, phone, email, user.getUid());
-
-                    databaseAdapter.createUser(userObj, role);
-
-                    Intent signedUpIntent = new Intent(context, MainActivity.class);
-                    signedUpIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    context.startActivity(signedUpIntent);
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
             }
         });
     }
@@ -238,11 +259,6 @@ public class UserController {
      * @param user user model
      */
     public void updateUserCurrentRequestId(User user) {
-//        FirebaseDatabase.getInstance().getReference("users")
-//                .child(user.getUid())
-//                .child("currentRequestId")
-//                .setValue(user.getCurrentRequestId());
-
         this.databaseAdapter.setUserCurrentRequestId(user.getUid(), user.getCurrentRequestId());
     }
 
@@ -251,11 +267,6 @@ public class UserController {
      * @param user user model
      */
     public void removeUserCurrentRequestId(User user) {
-//        FirebaseDatabase.getInstance().getReference("users")
-//                .child(user.getUid())
-//                .child("currentRequestId")
-//                .setValue("");
-//
         this.databaseAdapter.setUserCurrentRequestId(user.getUid(), "");
     }
 
