@@ -249,16 +249,16 @@ public class UserController {
      * Updates user entry with new currentRequestId
      * @param user user model
      */
-    public void updateUserCurrentRequestId(User user) {
-        this.databaseAdapter.setUserCurrentRequestId(user.getUid(), user.getCurrentRequestId());
+    public void updateUserCurrentRequestId(String uid, String requestId) {
+        this.databaseAdapter.setUserCurrentRequestId(uid, requestId);
     }
 
     /**
      * Updates user entry with contents of the user
      * @param user user model
      */
-    public void removeUserCurrentRequestId(User user) {
-        this.databaseAdapter.setUserCurrentRequestId(user.getUid(), "");
+    public void removeUserCurrentRequestId(String uid) {
+        this.databaseAdapter.setUserCurrentRequestId(uid, "");
     }
 
     public void getUser(Callback<Map<String, Object>> callback) {

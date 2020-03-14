@@ -62,8 +62,8 @@ public class RequestPendingFragment extends Fragment {
             public void onClick(View v)
             {
                 // Remove current request ID from firebase user entry
-                rideRequest.getRider().setCurrentRequestId("");
-                userController.updateUserCurrentRequestId(rideRequest.getRider());
+//                rideRequest.getRider().setCurrentRequestId("");
+                userController.removeUserCurrentRequestId(rideRequest.getRider());
 
                 // Remove ride request entry from firebase
                 rideController.removeRideRequest(rideRequest);

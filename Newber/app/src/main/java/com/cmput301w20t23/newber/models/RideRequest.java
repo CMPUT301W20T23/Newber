@@ -17,8 +17,8 @@ public class RideRequest implements Serializable {
     private Location startLocation;
     private Location endLocation;
     private RequestStatus status;
-    private Driver driver;
-    private Rider rider;
+    private String driver;
+    private String rider;
     private double cost;
 
     public RideRequest() { }
@@ -31,7 +31,7 @@ public class RideRequest implements Serializable {
      * @param rider      the rider involved
      * @param cost          the cost of the ride
      */
-    public RideRequest(Location startLocation, Location endLocation, Rider rider, double cost) {
+    public RideRequest(Location startLocation, Location endLocation, String rider, double cost) {
         this.requestId = UUID.randomUUID().toString();
         this.startLocation = startLocation;
         this.endLocation = endLocation;
@@ -41,7 +41,7 @@ public class RideRequest implements Serializable {
         this.cost = cost;
     }
 
-    public RideRequest(String requestId, Location startLocation, Location endLocation, RequestStatus status, Rider rider, Driver driver, double cost) {
+    public RideRequest(String requestId, Location startLocation, Location endLocation, RequestStatus status, String rider, String driver, double cost) {
         this.requestId = requestId;
         this.startLocation = startLocation;
         this.endLocation = endLocation;
@@ -128,7 +128,7 @@ public class RideRequest implements Serializable {
      *
      * @return the driver involved
      */
-    public Driver getDriver() {
+    public String getDriver() {
         return driver;
     }
 
@@ -137,7 +137,7 @@ public class RideRequest implements Serializable {
      *
      * @param driver the driver involved
      */
-    public void setDriver(Driver driver) {
+    public void setDriver(String driver) {
         this.driver = driver;
     }
 
@@ -146,7 +146,7 @@ public class RideRequest implements Serializable {
      *
      * @return the rider involved
      */
-    public Rider getRider() {
+    public String getRider() {
         return rider;
     }
 
@@ -155,7 +155,7 @@ public class RideRequest implements Serializable {
      *
      * @param rider the rider involved
      */
-    public void setRider(Rider rider) {
+    public void setRider(String rider) {
         this.rider = rider;
     }
 

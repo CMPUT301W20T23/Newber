@@ -11,12 +11,16 @@ import android.widget.TextView;
 import com.cmput301w20t23.newber.R;
 import com.cmput301w20t23.newber.controllers.NameOnClickListener;
 import com.cmput301w20t23.newber.controllers.RideController;
+import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.Driver;
 import com.cmput301w20t23.newber.models.RequestStatus;
 import com.cmput301w20t23.newber.models.RideRequest;
 import com.cmput301w20t23.newber.models.Rider;
+import com.cmput301w20t23.newber.models.User;
 
 import androidx.fragment.app.Fragment;
+
+import java.util.Map;
 
 /**
  * The Android Fragment that is shown when the user has an in-progress current ride request.
@@ -55,9 +59,9 @@ public class RequestInProgressFragment extends Fragment {
         TextView pickupLocationTextView = view.findViewById(R.id.pickup_location);
         TextView dropoffLocationTextView = view.findViewById(R.id.dropoff_location);
         TextView fareTextView = view.findViewById(R.id.ride_fare);
-        TextView nameTextView = view.findViewById(R.id.rider_main_driver_name);
-        TextView phoneTextView = view.findViewById(R.id.rider_main_driver_phone);
-        TextView emailTextView = view.findViewById(R.id.rider_main_driver_email);
+        final TextView nameTextView = view.findViewById(R.id.rider_main_driver_name);
+        final TextView phoneTextView = view.findViewById(R.id.rider_main_driver_phone);
+        final TextView emailTextView = view.findViewById(R.id.rider_main_driver_email);
         Button completeButton = view.findViewById(R.id.driver_complete_ride_button);
 
         // Set view elements
@@ -69,22 +73,46 @@ public class RequestInProgressFragment extends Fragment {
         {
             case "Rider":
                 // Set values of info box
-                nameTextView.setText(rideRequest.getDriver().getUsername());
-                phoneTextView.setText(rideRequest.getDriver().getPhone());
-                emailTextView.setText(rideRequest.getDriver().getEmail());
+                ((MainActivity) getActivity()).userController.getUser(rideRequest.getDriver(),
+                        new Callback<Map<String, Object>>() {
+                            @Override
+                            public void myResponseCallback(Map<String, Object> result) {
+                                User driver = (User) result.get("user");
+                                nameTextView.setText(driver.getUsername());
+                                phoneTextView.setText(driver.getPhone());
+                                emailTextView.setText(driver.getEmail());
+                                nameTextView.setOnClickListener(new NameOnClickListener(role, driver));
+                            }
+                        });
+
+//                nameTextView.setText(rideRequest.getDriver().getUsername());
+//                phoneTextView.setText(rideRequest.getDriver().getPhone());
+//                emailTextView.setText(rideRequest.getDriver().getEmail());
 
                 // Complete ride button only visible by driver; rider hides it
                 completeButton.setVisibility(View.INVISIBLE);
 
                 // Bring up profile when name is clicked
-                nameTextView.setOnClickListener(new NameOnClickListener(role, rideRequest.getDriver()));
+//                nameTextView.setOnClickListener(new NameOnClickListener(role, rideRequest.getDriver()));
                 break;
 
             case "Driver":
                 // Set values of info box
-                nameTextView.setText(rideRequest.getRider().getUsername());
-                phoneTextView.setText(rideRequest.getRider().getPhone());
-                emailTextView.setText(rideRequest.getRider().getEmail());
+                ((MainActivity) getActivity()).userController.getUser(rideRequest.getRider(),
+                        new Callback<Map<String, Object>>() {
+                            @Override
+                            public void myResponseCallback(Map<String, Object> result) {
+                                User rider = (User) result.get("user");
+                                nameTextView.setText(rider.getUsername());
+                                phoneTextView.setText(rider.getPhone());
+                                emailTextView.setText(rider.getEmail());
+                                nameTextView.setOnClickListener(new NameOnClickListener(role, rider));
+                            }
+                        });
+
+//                nameTextView.setText(rideRequest.getRider().getUsername());
+//                phoneTextView.setText(rideRequest.getRider().getPhone());
+//                emailTextView.setText(rideRequest.getRider().getEmail());
 
                 completeButton.setBackgroundColor(Color.CYAN);
                 completeButton.setText("Complete");
@@ -103,7 +131,7 @@ public class RequestInProgressFragment extends Fragment {
                 });
 
                 // Bring up profile when name is clicked
-                nameTextView.setOnClickListener(new NameOnClickListener(role, rideRequest.getRider()));
+//                nameTextView.setOnClickListener(new NameOnClickListener(role, rideRequest.getRider()));
                 break;
         }
 

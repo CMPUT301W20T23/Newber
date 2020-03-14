@@ -24,11 +24,12 @@ import com.google.firebase.firestore.SetOptions;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Observable;
 
 /**
  * Singleton class for accessing the Firestore database
  */
-public class DatabaseAdapter {
+public class DatabaseAdapter extends Observable {
     private FirebaseFirestore db = null;
     private CollectionReference users = null;
     private CollectionReference rideRequests = null;
@@ -70,34 +71,39 @@ public class DatabaseAdapter {
                 });
     }
 
-    public void createRideRequest(User rider, RideRequest rideRequest) {
+    public void createRideRequest(String rider, final RideRequest rideRequest) {
         rideRequests.document(rideRequest.getRequestId())
                 .set(rideRequest)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         System.out.println("Creating Ride Request successfully written!");
+                        setChanged();
+                        notifyObservers(rideRequest);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         System.out.println("Error while creating ride request: " + e);
+                        clearChanged();
                     }
                 });
 
-        users.document(rider.getUid())
+        users.document(rider)
                 .update("currentRequestId", rideRequest.getRequestId())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         System.out.println("Updating user requestId successfully written!");
+                        setChanged();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         System.out.println("Error while updating user requestId: " + e);
+                        clearChanged();
                     }
                 });
 
@@ -110,30 +116,36 @@ public class DatabaseAdapter {
                     @Override
                     public void onSuccess(Void aVoid) {
                         System.out.println("Deleting Ride Request successfully written!");
+                        setChanged();
+                        notifyObservers(null);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         System.out.println("Error while deleting ride request: " + e);
+                        clearChanged();
                     }
                 });
 
     }
 
-    public void updateRideRequest(RideRequest rideRequest) {
+    public void updateRideRequest(final RideRequest rideRequest) {
         rideRequests.document(rideRequest.getRequestId())
                 .set(rideRequest)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         System.out.println("Updating Ride Request successfully written!");
+                        setChanged();
+                        notifyObservers(rideRequest);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         System.out.println("Error while updating ride request: " + e);
+                        clearChanged();
                     }
                 });
 
@@ -262,7 +274,6 @@ public class DatabaseAdapter {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         Rating rating = documentSnapshot.toObject(Rating.class);
-
                         callback.myResponseCallback(rating);
                     }
                 })
@@ -277,32 +288,19 @@ public class DatabaseAdapter {
     public void getRideRequest(String requestId, final Callback<RideRequest> callback) {
         DocumentReference docRef = rideRequests.document(requestId);
 
-        // Trying to add a listener, did not work. Not sure why
-//        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-//            @Override
-//            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-//                if (documentSnapshot != null && documentSnapshot.exists()) {
-//                    RideRequest rideRequest = documentSnapshot.toObject(RideRequest.class);
-//
-//                    callback.myResponseCallback(rideRequest);
-//                }
-//            }
-//        });
+//         Trying to add a listener, did not work. Not sure why
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    RideRequest rideRequest = documentSnapshot.toObject(RideRequest.class);
 
-        docRef.get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        RideRequest rideRequest = documentSnapshot.toObject(RideRequest.class);
-                        callback.myResponseCallback(rideRequest);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        callback.myResponseCallback(null);
-                    }
-                });
+                    callback.myResponseCallback(rideRequest);
+                    setChanged();
+                    notifyObservers(rideRequest);
+                }
+            }
+        });
     }
 
     public void updateUserInfo(String uid, String newEmail, String newPhone) {
