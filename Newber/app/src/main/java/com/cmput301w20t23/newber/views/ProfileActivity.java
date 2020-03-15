@@ -19,11 +19,12 @@ import android.widget.TextView;
 
 import com.cmput301w20t23.newber.R;
 import com.cmput301w20t23.newber.controllers.UserController;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.cmput301w20t23.newber.helpers.Callback;
+import com.cmput301w20t23.newber.models.Rating;
+import com.cmput301w20t23.newber.models.User;
+//import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.Map;
 
 /**
  * The Android Activity that contains the user's profile.
@@ -31,7 +32,7 @@ import com.google.firebase.database.ValueEventListener;
  * @author Jessica D'Cunha, Gaurav Sekhar
  */
 public class ProfileActivity extends AppCompatActivity {
-    private FirebaseAuth mAuth;
+//    private FirebaseAuth mAuth;
     private UserController userController;
 
     private TextView fullName;
@@ -44,7 +45,6 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView upvotes;
     private TextView downvotes;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,7 +52,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         setTitle(getString(R.string.profile));
 
-        mAuth = FirebaseAuth.getInstance();
         userController = new UserController(this);
 
         fullName = findViewById(R.id.full_name);
@@ -60,44 +59,41 @@ public class ProfileActivity extends AppCompatActivity {
         phone = findViewById(R.id.phone);
         email = findViewById(R.id.email);
 
-        FirebaseDatabase.getInstance().getReference("users")
-                .child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+        userController.getUser(new Callback<Map<String, Object>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String role = dataSnapshot.child("role").getValue(String.class);
-                System.out.println(role);
+            public void myResponseCallback(Map<String, Object> result) {
+                String role = (String) result.get("role");
+                User user = (User) result.get("user");
 
-                switch (role) {
-                    case "Rider":
-                        fullName.setText(dataSnapshot.child("firstName").getValue(String.class) + " " + dataSnapshot.child("lastName").getValue(String.class));
-                        username.setText(dataSnapshot.child("username").getValue(String.class));
-                        phone.setText(dataSnapshot.child("phone").getValue(String.class));
-                        email.setText(dataSnapshot.child("email").getValue(String.class));
-                        break;
-                    case "Driver":
-                        ratingLabel = findViewById(R.id.ratingLabel);
-                        ratingLayout = findViewById(R.id.rating_layout);
-                        ratingLabel.setVisibility(View.VISIBLE);
-                        ratingLayout.setVisibility(View.VISIBLE);
-                        upvotes = findViewById(R.id.upvotes);
-                        downvotes = findViewById(R.id.downvotes);
-
-                        fullName.setText(dataSnapshot.child("firstName").getValue(String.class) + " " + dataSnapshot.child("lastName").getValue(String.class));
-                        username.setText(dataSnapshot.child("username").getValue(String.class));
-                        phone.setText(dataSnapshot.child("phone").getValue(String.class));
-                        email.setText(dataSnapshot.child("email").getValue(String.class));
-
-                        loadRatings();
-
-                        break;
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                switchRoles(role, user);
             }
         });
+    }
+
+    public void switchRoles(String role, User user) {
+        switch (role) {
+            case "Rider":
+                fullName.setText(user.getFirstName() + " " + user.getLastName());
+                username.setText(user.getUsername());
+                phone.setText(user.getPhone());
+                email.setText(user.getEmail());
+                break;
+            case "Driver":
+                ratingLabel = findViewById(R.id.ratingLabel);
+                ratingLayout = findViewById(R.id.rating_layout);
+                ratingLabel.setVisibility(View.VISIBLE);
+                ratingLayout.setVisibility(View.VISIBLE);
+                upvotes = findViewById(R.id.upvotes);
+                downvotes = findViewById(R.id.downvotes);
+
+                fullName.setText(user.getFirstName() + " " + user.getLastName());
+                username.setText(user.getUsername());
+                phone.setText(user.getPhone());
+                email.setText(user.getEmail());
+
+                loadRatings(user.getUid());
+                break;
+        }
     }
 
     @Override
@@ -129,17 +125,12 @@ public class ProfileActivity extends AppCompatActivity {
     /**
      * Retrieves rating information from the database.
      */
-    public void loadRatings() {
-        FirebaseDatabase.getInstance().getReference("drivers")
-                .child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+    public void loadRatings(String uid) {
+        userController.getRating(uid, new Callback<Rating>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                upvotes.setText(Long.valueOf((long) dataSnapshot.child("upvotes").getValue()).toString());
-                downvotes.setText(Long.valueOf((long) dataSnapshot.child("downvotes").getValue()).toString());
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
+            public void myResponseCallback(Rating result) {
+                upvotes.setText(Integer.toString(result.getUpvotes()));
+                downvotes.setText(Integer.toString(result.getDownvotes()));
             }
         });
     }
@@ -192,6 +183,11 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         editDialog.show();
+    }
+
+    public void updatePhoneEmailText(String newPhone, String newEmail) {
+        phone.setText(newPhone);
+        email.setText(newEmail);
     }
 
     /**

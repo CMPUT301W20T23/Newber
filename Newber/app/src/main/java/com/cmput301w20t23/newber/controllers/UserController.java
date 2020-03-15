@@ -6,26 +6,28 @@ import android.util.Log;
 import android.util.Patterns;
 import android.widget.Toast;
 
+import com.cmput301w20t23.newber.database.DatabaseAdapter;
+import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.Driver;
 import com.cmput301w20t23.newber.models.Rating;
 import com.cmput301w20t23.newber.models.Rider;
 import com.cmput301w20t23.newber.models.User;
 import com.cmput301w20t23.newber.views.MainActivity;
+import com.cmput301w20t23.newber.views.ProfileActivity;
+import com.cmput301w20t23.newber.views.SignUpActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import androidx.annotation.NonNull;
+
+import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 
@@ -37,8 +39,7 @@ import static android.content.ContentValues.TAG;
 public class UserController {
     private Context context;
     private FirebaseAuth mAuth;
-    private Rider rider;
-    private Driver driver;
+    private DatabaseAdapter databaseAdapter;
 
     /**
      * Instantiates a new UserController.
@@ -48,6 +49,7 @@ public class UserController {
     public UserController(Context context) {
         this.context = context;
         this.mAuth = FirebaseAuth.getInstance();
+        this.databaseAdapter = DatabaseAdapter.getInstance();
     }
 
     /**
@@ -127,45 +129,48 @@ public class UserController {
      * @param phone     the user's phone
      * @param email     the user's email
      */
-    public void createUser(final String role, final String firstName, final String lastName, final String username, final String phone, final String email) {
-        FirebaseDatabase.getInstance().getReference("users").orderByChild("username").equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
+    public void createUser(final String role,
+                           final String firstName,
+                           final String lastName,
+                           final String username,
+                           final String phone,
+                           final String email,
+                           final String password)
+    {
+        this.databaseAdapter.checkUserName(username, new Callback<Boolean>() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                if (dataSnapshot.exists()) {
+            public void myResponseCallback(Boolean result) {
+                if (result) {
                     Toast.makeText(context, "Username has already been taken", Toast.LENGTH_LONG).show();
+                } else {
+                    mAuth.createUserWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        User newUser = new User(firstName,
+                                                lastName,
+                                                username,
+                                                phone,
+                                                email,
+                                                task.getResult().getUser().getUid());
+
+                                        databaseAdapter.createUser(newUser, role);
+
+                                        Intent signedUpIntent = new Intent(UserController.this.context,
+                                                MainActivity.class);
+
+                                        signedUpIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        UserController.this.context.startActivity(signedUpIntent);
+                                    } else {
+                                        Toast.makeText(UserController.this.context,
+                                                task.getException().toString(),
+                                                Toast.LENGTH_SHORT)
+                                                .show();
+                                    }
+                                }
+                            });
                 }
-                else {
-                    FirebaseUser user = mAuth.getCurrentUser();
-                    User userObj = new User(firstName, lastName, username, phone, email, user.getUid());
-
-                    FirebaseDatabase.getInstance().getReference("users")
-                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                            .setValue(userObj);
-
-                    FirebaseDatabase.getInstance().getReference("users")
-                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                            .child("role").setValue(role);
-
-                    FirebaseDatabase.getInstance().getReference("users")
-                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                            .child("currentRequestId").setValue("");
-
-                    // if the user to be created is a driver, create upvotes and downvotes fields in database
-                    if (role.equals("Driver")) {
-                        FirebaseDatabase.getInstance().getReference("drivers")
-                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                .setValue(new Rating(0, 0));
-                    }
-
-                    Intent signedUpIntent = new Intent(context, MainActivity.class);
-                    signedUpIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    context.startActivity(signedUpIntent);
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
             }
         });
     }
@@ -204,63 +209,68 @@ public class UserController {
      * @param phone    the user's new phone
      * @param password the user's password to re-authenticate in order to change the email
      */
-    public void saveContactInfo(final Context context, final String email, String phone, String password) {
-        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users")
-                .child(mAuth.getCurrentUser().getUid());
+    public void saveContactInfo(final Context context, final String email, final String phone, final String password) {
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        final FirebaseUser firebaseUser = mAuth.getCurrentUser();
 
-        // current credential
-        AuthCredential credential = EmailAuthProvider
-                .getCredential(user.getEmail(), password);
+        databaseAdapter.getUser(mAuth.getCurrentUser().getUid(), new Callback<Map<String, Object>>() {
+            @Override
+            public void myResponseCallback(Map<String, Object> result) {
+                final User user = (User) result.get("user");
 
-        user.reauthenticate(credential)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "User re-authenticated.");
-                        // update email
-                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                        user.updateEmail(email)
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            ref.child("email").setValue(email);
-                                            Log.d(TAG, "User email address updated.");
-                                        }
-                                    }
-                                });
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(context, "Password incorrect. Email could not be updated.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-        ref.child("phone").setValue(phone);
+                // current credential
+                AuthCredential credential = EmailAuthProvider
+                        .getCredential(user.getEmail(), password);
+
+                firebaseUser.reauthenticate(credential)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                firebaseUser.updateEmail(email);
+                                databaseAdapter.updateUserInfo(user.getUid(), email, phone);
+                                //TO DO: Change
+                                ((ProfileActivity) context).updatePhoneEmailText(phone, email);
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(context,
+                                        "Password incorrect. Email could not be updated.",
+                                        Toast.LENGTH_SHORT)
+                                        .show();
+                            }
+                        });
+            }
+        });
     }
 
     /**
      * Updates user entry with new currentRequestId
      * @param user user model
      */
-    public void updateUserCurrentRequestId(User user) {
-        FirebaseDatabase.getInstance().getReference("users")
-                .child(user.getUid())
-                .child("currentRequestId")
-                .setValue(user.getCurrentRequestId());
+    public void updateUserCurrentRequestId(String uid, String requestId) {
+        this.databaseAdapter.setUserCurrentRequestId(uid, requestId);
     }
 
     /**
      * Updates user entry with contents of the user
      * @param user user model
      */
-    public void removeUserCurrentRequestId(User user) {
-        FirebaseDatabase.getInstance().getReference("users")
-                .child(user.getUid())
-                .child("currentRequestId")
-                .setValue("");
+    public void removeUserCurrentRequestId(String uid) {
+        this.databaseAdapter.setUserCurrentRequestId(uid, "");
+    }
+
+    public void getUser(Callback<Map<String, Object>> callback) {
+        String uid = mAuth.getCurrentUser().getUid();
+        this.databaseAdapter.getUser(uid, callback);
+    }
+
+    public void getUser(String uid, Callback<Map<String, Object>> callback) {
+        this.databaseAdapter.getUser(uid, callback);
+    }
+
+    public void getRating(String uid, Callback<Rating> callback) {
+        this.databaseAdapter.getRating(uid ,callback);
     }
 }

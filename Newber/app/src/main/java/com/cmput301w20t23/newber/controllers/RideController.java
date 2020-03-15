@@ -2,6 +2,8 @@ package com.cmput301w20t23.newber.controllers;
 import android.content.Context;
 import androidx.annotation.NonNull;
 
+import com.cmput301w20t23.newber.database.DatabaseAdapter;
+import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.RequestStatus;
 import com.cmput301w20t23.newber.models.Location;
 import com.cmput301w20t23.newber.models.RideRequest;
@@ -18,48 +20,45 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Observer;
 
 public class RideController {
-    private final FirebaseDatabase database;
     private final FirebaseAuth mAuth;
+    private DatabaseAdapter databaseAdapter;
 
     public RideController() {
-        this.database = FirebaseDatabase.getInstance();
         this.mAuth = FirebaseAuth.getInstance();
+        this.databaseAdapter = DatabaseAdapter.getInstance();
     }
 
-    public void createRideRequest(final Location startLocation, final Location endLocation, double cost, Rider rider) {
+    public void getRideRequest(String requestId, Callback<RideRequest> callback) {
+        this.databaseAdapter.getRideRequest(requestId, callback);
+    }
+
+    public void createRideRequest(final Location startLocation, final Location endLocation, double cost, String rider) {
         RideRequest rideRequest = new RideRequest(startLocation, endLocation, rider, cost);
-        rider.setCurrentRequestId(rideRequest.getRequestId());
-        database.getReference("rideRequests")
-                .child(rideRequest.getRequestId())
-                .setValue(rideRequest);
-        database.getReference("users").child(rider.getUid()).child("currentRequestId").setValue(rideRequest.getRequestId());
+        this.databaseAdapter.createRideRequest(rider, rideRequest);
     }
 
     public void removeRideRequest(RideRequest rideRequest) {
         // Remove request from firebase requests table
-        FirebaseDatabase.getInstance().getReference("rideRequests")
-                .child(rideRequest.getRequestId()).removeValue();
+        this.databaseAdapter.removeRideRequest(rideRequest);
     }
 
     public void updateDriverAndRequest(RideRequest request) {
         request.setStatus(RequestStatus.OFFERED);
         updateRideRequest(request);
-        updateUserCurrentRequest(request.getRequestId());
     }
 
     public void updateRideRequest(RideRequest request) {
-        database.getReference("rideRequests")
-                .child(request.getRequestId())
-                .setValue(request);
+        databaseAdapter.updateRideRequest(request);
     }
 
-    private void updateUserCurrentRequest(String requestId) {
-        String userUid = mAuth.getCurrentUser().getUid();
-        database.getReference("users")
-                .child(userUid)
-                .child("currentRequestId")
-                .setValue(requestId);
+    public void getPendingRideRequests(Callback<ArrayList<RideRequest>> callback) {
+        databaseAdapter.getPendingRideRequests(callback);
+    }
+
+    public void addObserver(Observer observer) {
+        this.databaseAdapter.addObserver(observer);
     }
 }

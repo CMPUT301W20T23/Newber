@@ -80,26 +80,23 @@ public class SignUpActivity extends AppCompatActivity {
 
         // if user inputs are valid
         if (userController.isSignUpValid(role, firstName, lastName, username, phone, email, password, confirmPassword)) {
-            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    // if sign up email is unique and password meets minimum requirements
-                    if (task.isSuccessful()) {
-                        Log.d("MYTAG", "createUserWithEmail:success");
-                        userController.createUser(role, firstName, lastName, username, phone, email);
-                        // transition to main screen after sign up
-//                        Intent mainIntent = new Intent(getBaseContext(), MainActivity.class);
-//                        mainIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                        startActivity(mainIntent);
-//                        finish();
-                    }
-                    // if sign up email already exists or password does not meet minimum requirements
-                    else {
-                        Log.w("MYTAG", "createUserWithEmail:failure", task.getException());
-                        Toast.makeText(SignUpActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
+            userController.createUser(role, firstName, lastName, username, phone, email, password);
+
+//            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+//                @Override
+//                public void onComplete(@NonNull Task<AuthResult> task) {
+//                    // if sign up email is unique and password meets minimum requirements
+//                    if (task.isSuccessful()) {
+//                        Log.d("MYTAG", "createUserWithEmail:success");
+//                        userController.createUser(role, firstName, lastName, username, phone, email);
+//                    }
+//                    // if sign up email already exists or password does not meet minimum requirements
+//                    else {
+//                        Log.w("MYTAG", "createUserWithEmail:failure", task.getException());
+//                        Toast.makeText(SignUpActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+//                    }
+//                }
+//            });
         }
     }
 

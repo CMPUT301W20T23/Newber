@@ -15,28 +15,27 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.cmput301w20t23.newber.R;
+import com.cmput301w20t23.newber.controllers.RideController;
+import com.cmput301w20t23.newber.controllers.UserController;
+import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.Driver;
 import com.cmput301w20t23.newber.models.Rating;
 import com.cmput301w20t23.newber.models.RideRequest;
 import com.cmput301w20t23.newber.models.Rider;
 import com.cmput301w20t23.newber.models.User;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * The Android Activity that acts as the main user screen of the app.
  *
  * @author Amy Hou
  */
-public class MainActivity extends AppCompatActivity {
-    private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    private final FirebaseDatabase database = FirebaseDatabase.getInstance();
+public class MainActivity extends AppCompatActivity implements Observer {
+    protected final UserController userController = new UserController(this);
+    protected final RideController rideController = new RideController();
 
     /**
      * The user's current ride request.
@@ -52,78 +51,58 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Get current userID
-        String userId = mAuth.getCurrentUser().getUid();
-
-        System.out.println(userId);
-
-        // Get User object using Firebase users table
-        database.getReference("users")
-                .child(userId).addValueEventListener(new ValueEventListener() {
+        // Get User object using User Controller
+        this.userController.getUser(new Callback<Map<String, Object>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                firstName = dataSnapshot.child("firstName").getValue(String.class);
-                lastName = dataSnapshot.child("lastName").getValue(String.class);
-                username = dataSnapshot.child("username").getValue(String.class);
-                phone = dataSnapshot.child("phone").getValue(String.class);
-                email = dataSnapshot.child("email").getValue(String.class);
-                uId = mAuth.getCurrentUser().getUid();
-                currentRequestId = dataSnapshot.child("currentRequestId").getValue(String.class);
-                role = dataSnapshot.child("role").getValue(String.class);
-                System.out.println("changed");
-
-                switch (role) {
-                    case "Rider":
-                        user = new Rider(firstName, lastName, username, phone, email, uId, currentRequestId);
-                        break;
-
-                    case "Driver":
-                        user = new Driver(firstName, lastName, username, phone, email, uId, currentRequestId, null);
-                        database.getReference("drivers").child(uId).addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                Rating rating = dataSnapshot.getValue(Rating.class);
-                                // append rating
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
-                        break;
-                }
-                System.out.println(MainActivity.this.user.getEmail());
-                // Use User.currRequestId to get RideRequest object from requests table
-                if (currentRequestId != null && !currentRequestId.isEmpty()) {
-                    System.out.println("currReqId not null");
-                    database.getReference("rideRequests")
-                            .child(currentRequestId).addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.exists()) {
-                                currRequest = dataSnapshot.getValue(RideRequest.class);
-//                                updateUsers();
-                                displayFragment();
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
-                } else {
-                    currRequest = null;
-                    displayFragment();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
+            public void myResponseCallback(Map<String, Object> result) {
+                User responseUser = (User) result.get("user");
+                firstName = responseUser.getFirstName();
+                lastName = responseUser.getLastName();
+                username = responseUser.getUsername();
+                phone = responseUser.getPhone();
+                email = responseUser.getEmail();
+                uId = responseUser.getUid();
+                currentRequestId = responseUser.getCurrentRequestId();
+                role = (String) result.get("role");
+                switchRole();
+                displayFragments();
             }
         });
+
+        this.rideController.addObserver(this);
+    }
+
+    public void switchRole() {
+        switch (role) {
+            case "Rider":
+                user = new Rider(firstName, lastName, username, phone, email, uId, currentRequestId);
+                break;
+
+            case "Driver":
+                user = new Driver(firstName, lastName, username, phone, email, uId, currentRequestId, null);
+                this.userController.getRating(uId, new Callback<Rating>() {
+                    @Override
+                    public void myResponseCallback(Rating result) {
+                        Rating rating = result;
+                    }
+                });
+                break;
+        }
+    }
+
+    public void displayFragments() {
+        if (currentRequestId != null && !currentRequestId.isEmpty()) {
+            this.rideController.getRideRequest(currentRequestId, new Callback<RideRequest>() {
+                @Override
+                public void myResponseCallback(RideRequest result) {
+                    currRequest = result;
+                    displayFragment();
+                }
+            });
+        } else {
+            currRequest = null;
+            displayFragment();
+        }
     }
 
     public void displayFragment() {
@@ -198,5 +177,17 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (arg == null) {
+            currRequest = null;
+        } else {
+            currRequest = (RideRequest) arg;
+            System.out.println("In notified observer: " + currRequest.toString());
+        }
+
+        displayFragment();
     }
 }
