@@ -11,8 +11,11 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmput301w20t23.newber.R;
@@ -57,6 +60,11 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
     //Start and End Locations
     private Location startLocation;
     private Location endLocation;
+
+    //Ride fare
+    private double baseFareValue;
+    private double fareValue;
+    private TextView fareText;
 
     //A geocoder to successfully translate Latitude Longitude to human-readable addresses
     private Geocoder geocoder;
@@ -144,6 +152,10 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                 startLocation.setLocationFromLatLng(place.getLatLng(), name);
                 setStartMarker(place.getLatLng());
                 startAutocompleteSupportFragment.setText(place.toString());
+
+                if (startLocation != null && endLocation != null) {
+                    calculateFare();
+                }
             }
 
             @Override
@@ -174,6 +186,10 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                 String name = getNameFromLatLng(place.getLatLng());
                 endLocation.setLocationFromLatLng(place.getLatLng(), name);
                 setEndMarker(place.getLatLng());
+
+                if (startLocation != null && endLocation != null) {
+                    calculateFare();
+                }
             }
 
             @Override
@@ -231,6 +247,39 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
     }
 
     /**
+     * Sets up the fare increase and decrease buttons to be clickable, and allow the user to adjust
+     * the fare value accordingly
+     */
+    public void setUpFareButtons() {
+        ImageButton increaseButton = findViewById(R.id.increase_button);
+        ImageButton decreaseButton = findViewById(R.id.decrease_button);
+
+        increaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (startLocation != null && endLocation != null) {
+                    // increase fare by 5%
+                    fareValue += 0.05*baseFareValue;
+                    fareText.setText(String.format(Locale.US, "$%.2f", fareValue));
+                }
+            }
+        });
+
+        decreaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (startLocation != null && endLocation != null) {
+                    // decrease fare by 5% up to base value
+                    fareValue -= 0.05*baseFareValue;
+                    if (fareValue < baseFareValue)
+                        fareValue = baseFareValue;
+                    fareText.setText(String.format(Locale.US, "$%.2f", fareValue));
+                }
+            }
+        });
+    }
+
+    /**
      * Sets up the Google Maps UI Settings such as zooming in and out.
      */
     private void setUpUiSettings() {
@@ -262,6 +311,16 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                         .show();
             }
         }
+    }
+
+    /**
+     * Calculate base fare based on distance between start location and end location and set
+     * fare text accordingly
+     */
+    private void calculateFare() {
+        // TODO: actually calculate it
+        baseFareValue = 5.00;
+        fareText.setText(String.format(Locale.US, "$%.2f", fareValue));
     }
 
     /**
@@ -331,6 +390,10 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
 
         // Set up the map buttons
         setUpMapButtons();
+
+        // Set up the fare views
+        fareText = findViewById(R.id.fare_text);
+        setUpFareButtons();
     }
 
     /**
@@ -354,7 +417,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         Intent intent = getIntent();
         Rider rider = (Rider) intent.getSerializableExtra("rider");
         System.out.println("rider username:" + rider.getUsername());
-        rideController.createRideRequest(startLocation, endLocation, 10.00, rider.getUid());
+        rideController.createRideRequest(startLocation, endLocation, fareValue, rider.getUid());
         finish();
     }
 }
