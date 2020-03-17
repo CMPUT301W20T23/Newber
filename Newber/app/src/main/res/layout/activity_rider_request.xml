@@ -100,7 +100,7 @@
             android:id="@+id/fare_text"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="28"
+            android:layout_weight="30"
             android:background="@color/colorWhite"
             android:padding="5dp"
             android:textColor="@color/colorBlack"
@@ -112,8 +112,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:padding="5dp"
-            android:backgroundTint="@color/colorPrimary"
-            android:src="@drawable/ic_keyboard_arrow_up_white_24dp">
+            android:background="@color/colorWhite"
+            android:src="@drawable/ic_keyboard_arrow_up_red_24dp">
 
         </ImageButton>
 
@@ -123,8 +123,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:padding="5dp"
-            android:backgroundTint="@color/colorPrimary"
-            android:src="@drawable/ic_keyboard_arrow_down_white_24dp">
+            android:background="@color/colorWhite"
+            android:src="@drawable/ic_keyboard_arrow_down_red_24dp">
 
         </ImageButton>
     </LinearLayout>
