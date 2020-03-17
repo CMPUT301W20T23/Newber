@@ -153,7 +153,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                 setStartMarker(place.getLatLng());
                 startAutocompleteSupportFragment.setText(place.toString());
 
-                if (startLocation != null && endLocation != null) {
+                if (startLocation.toString() != null && endLocation.toString() != null) {
                     calculateFare();
                 }
             }
@@ -187,7 +187,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                 endLocation.setLocationFromLatLng(place.getLatLng(), name);
                 setEndMarker(place.getLatLng());
 
-                if (startLocation != null && endLocation != null) {
+                if (startLocation.toString() != null && endLocation.toString() != null) {
                     calculateFare();
                 }
             }
@@ -257,7 +257,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         increaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (startLocation != null && endLocation != null) {
+                if (startLocation.toString() != null && endLocation.toString() != null) {
                     // increase fare by 5%
                     fareValue += 0.05*baseFareValue;
                     fareText.setText(String.format(Locale.US, "$%.2f", fareValue));
@@ -268,7 +268,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         decreaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (startLocation != null && endLocation != null) {
+                if (startLocation.toString() != null && endLocation.toString() != null) {
                     // decrease fare by 5% up to base value
                     fareValue -= 0.05*baseFareValue;
                     if (fareValue < baseFareValue)
@@ -320,7 +320,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
     private void calculateFare() {
         // TODO: actually calculate it
         baseFareValue = 5.00;
-        fareText.setText(String.format(Locale.US, "$%.2f", fareValue));
+        fareText.setText(String.format(Locale.US, "$%.2f", baseFareValue));
     }
 
     /**
@@ -409,7 +409,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
      * @param view
      */
     public void confirmRiderRequest(View view) {
-        if ((startLocation == null) || (endLocation == null)) {
+        if ((startLocation.toString() == null) || (endLocation.toString() == null)) {
             Toast.makeText(this, "Please select endpoints", Toast.LENGTH_SHORT).show();
             return;
         }
