@@ -36,6 +36,7 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.maps.android.SphericalUtil;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -318,8 +319,18 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
      * fare text accordingly
      */
     private void calculateFare() {
-        // TODO: actually calculate it
-        baseFareValue = 5.00;
+        // average cost per mile of driving from: https://newsroom.aaa.com/tag/driving-cost-per-mile/
+        final double AVG_COST_PER_MILE = 0.592; // 59.2 cents
+        final double NUM_METRES_IN_MILE = 1609.344;
+        final double FLAT_FEE = 1.00;
+
+        // distance in metres
+        double distanceInMetres = SphericalUtil.computeDistanceBetween(startLocation.toLatLng(), endLocation.toLatLng());
+
+        // convert metres to miles, multiply by cost per mile, and add flat fee
+        baseFareValue = (distanceInMetres/NUM_METRES_IN_MILE)*AVG_COST_PER_MILE + FLAT_FEE;
+
+        fareValue = baseFareValue;
         fareText.setText(String.format(Locale.US, "$%.2f", baseFareValue));
     }
 
