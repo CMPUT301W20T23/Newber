@@ -11,8 +11,11 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmput301w20t23.newber.R;
@@ -33,6 +36,7 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.maps.android.SphericalUtil;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -57,6 +61,11 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
     //Start and End Locations
     private Location startLocation;
     private Location endLocation;
+
+    //Ride fare
+    private double baseFareValue;
+    private double fareValue;
+    private TextView fareText;
 
     //A geocoder to successfully translate Latitude Longitude to human-readable addresses
     private Geocoder geocoder;
@@ -144,6 +153,10 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                 startLocation.setLocationFromLatLng(place.getLatLng(), name);
                 setStartMarker(place.getLatLng());
                 startAutocompleteSupportFragment.setText(place.toString());
+
+                if (startLocation.toString() != null && endLocation.toString() != null) {
+                    calculateFare();
+                }
             }
 
             @Override
@@ -174,6 +187,10 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                 String name = getNameFromLatLng(place.getLatLng());
                 endLocation.setLocationFromLatLng(place.getLatLng(), name);
                 setEndMarker(place.getLatLng());
+
+                if (startLocation.toString() != null && endLocation.toString() != null) {
+                    calculateFare();
+                }
             }
 
             @Override
@@ -231,6 +248,39 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
     }
 
     /**
+     * Sets up the fare increase and decrease buttons to be clickable, and allow the user to adjust
+     * the fare value accordingly
+     */
+    public void setUpFareButtons() {
+        ImageButton increaseButton = findViewById(R.id.increase_button);
+        ImageButton decreaseButton = findViewById(R.id.decrease_button);
+
+        increaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (startLocation.toString() != null && endLocation.toString() != null) {
+                    // increase fare by 5%
+                    fareValue += 0.05*baseFareValue;
+                    fareText.setText(String.format(Locale.US, "$%.2f", fareValue));
+                }
+            }
+        });
+
+        decreaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (startLocation.toString() != null && endLocation.toString() != null) {
+                    // decrease fare by 5% up to base value
+                    fareValue -= 0.05*baseFareValue;
+                    if (fareValue < baseFareValue)
+                        fareValue = baseFareValue;
+                    fareText.setText(String.format(Locale.US, "$%.2f", fareValue));
+                }
+            }
+        });
+    }
+
+    /**
      * Sets up the Google Maps UI Settings such as zooming in and out.
      */
     private void setUpUiSettings() {
@@ -262,6 +312,26 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                         .show();
             }
         }
+    }
+
+    /**
+     * Calculate base fare based on distance between start location and end location and set
+     * fare text accordingly
+     */
+    private void calculateFare() {
+        // average cost per mile of driving from: https://newsroom.aaa.com/tag/driving-cost-per-mile/
+        final double AVG_COST_PER_MILE = 0.592; // 59.2 cents
+        final double NUM_METRES_IN_MILE = 1609.344;
+        final double FLAT_FEE = 1.00;
+
+        // distance in metres
+        double distanceInMetres = SphericalUtil.computeDistanceBetween(startLocation.toLatLng(), endLocation.toLatLng());
+
+        // convert metres to miles, multiply by cost per mile, and add flat fee
+        baseFareValue = (distanceInMetres/NUM_METRES_IN_MILE)*AVG_COST_PER_MILE + FLAT_FEE;
+
+        fareValue = baseFareValue;
+        fareText.setText(String.format(Locale.US, "$%.2f", baseFareValue));
     }
 
     /**
@@ -331,6 +401,10 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
 
         // Set up the map buttons
         setUpMapButtons();
+
+        // Set up the fare views
+        fareText = findViewById(R.id.fare_text);
+        setUpFareButtons();
     }
 
     /**
@@ -346,7 +420,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
      * @param view
      */
     public void confirmRiderRequest(View view) {
-        if ((startLocation == null) || (endLocation == null)) {
+        if ((startLocation.toString() == null) || (endLocation.toString() == null)) {
             Toast.makeText(this, "Please select endpoints", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -354,7 +428,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         Intent intent = getIntent();
         Rider rider = (Rider) intent.getSerializableExtra("rider");
         System.out.println("rider username:" + rider.getUsername());
-        rideController.createRideRequest(startLocation, endLocation, 10.00, rider.getUid());
+        rideController.createRideRequest(startLocation, endLocation, fareValue, rider.getUid());
         finish();
     }
 }
