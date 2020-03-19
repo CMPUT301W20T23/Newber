@@ -6,6 +6,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -13,7 +14,10 @@ import android.location.Geocoder;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -65,7 +69,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
     //Ride fare
     private double baseFareValue;
     private double fareValue;
-    private TextView fareText;
+    private EditText fareText;
 
     //A geocoder to successfully translate Latitude Longitude to human-readable addresses
     private Geocoder geocoder;
@@ -255,12 +259,37 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         ImageButton increaseButton = findViewById(R.id.increase_button);
         ImageButton decreaseButton = findViewById(R.id.decrease_button);
 
+        fareText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                // change fare once "Done" is pressed on keyboard
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    // get numerical value of fare offer
+                    String currentFare = fareText.getText().toString().replace("$", "");
+                    // update value only if user did not clear text field
+                    if (!currentFare.isEmpty()) {
+                        fareValue = Double.parseDouble(currentFare);
+                    }
+                    // format text to include dollar sign ($) and 2 decimal places
+                    fareText.setText(String.format(Locale.US, "$%.2f", fareValue));
+                    // close soft keyboard
+                    View currentFocus = getCurrentFocus();
+                    if (currentFocus != null) {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(currentFocus.getWindowToken(), 0);
+                    }
+                    currentFocus.clearFocus();
+                }
+                return false;
+            }
+        });
+
         increaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (startLocation.toString() != null && endLocation.toString() != null) {
                     // increase fare by 5%
-                    fareValue += 0.05*baseFareValue;
+                    fareValue += 0.05*fareValue;
                     fareText.setText(String.format(Locale.US, "$%.2f", fareValue));
                 }
             }
@@ -271,13 +300,14 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
             public void onClick(View view) {
                 if (startLocation.toString() != null && endLocation.toString() != null) {
                     // decrease fare by 5% up to base value
-                    fareValue -= 0.05*baseFareValue;
+                    fareValue -= 0.05*fareValue;
                     if (fareValue < baseFareValue)
                         fareValue = baseFareValue;
                     fareText.setText(String.format(Locale.US, "$%.2f", fareValue));
                 }
             }
         });
+
     }
 
     /**
