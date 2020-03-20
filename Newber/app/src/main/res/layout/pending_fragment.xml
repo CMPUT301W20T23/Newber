@@ -7,54 +7,59 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
         android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:textSize="20sp"
-            android:text="From:" />
+            android:textStyle="bold"
+            android:textSize="18dp"
+            android:text="From: " />
 
         <TextView
             android:id="@+id/pickup_location"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="2"
+            android:textSize="15dp"
             android:text="TextView" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
         android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:textSize="20sp"
-            android:text="To:" />
+            android:textStyle="bold"
+            android:textSize="18dp"
+            android:text="To: " />
 
         <TextView
             android:id="@+id/dropoff_location"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="2"
+            android:textSize="15dp"
             android:text="TextView" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
         android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Fare:"
-            android:textSize="20sp" />
+            android:textStyle="bold"
+            android:textSize="18dp"
+            android:text="Fare: " />
 
         <TextView
             android:id="@+id/ride_fare"
@@ -62,8 +67,8 @@
             android:layout_height="match_parent"
             android:layout_weight="8"
             android:gravity="bottom|left"
-            android:text="TextView"
-            android:textSize="14sp" />
+            android:textSize="15dp"
+            android:text="TextView" />
     </LinearLayout>
 
     <TextView

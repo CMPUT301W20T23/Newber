@@ -42,6 +42,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.maps.android.SphericalUtil;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -459,6 +460,11 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         Intent intent = getIntent();
         Rider rider = (Rider) intent.getSerializableExtra("rider");
         System.out.println("rider username:" + rider.getUsername());
+
+        // round fare value to 2 decimal places
+        DecimalFormat fareFormat = new DecimalFormat("#.00");
+        fareValue = Double.valueOf(fareFormat.format(fareValue));
+
         rideController.createRideRequest(startLocation, endLocation, fareValue, rider.getUid());
         finish();
     }

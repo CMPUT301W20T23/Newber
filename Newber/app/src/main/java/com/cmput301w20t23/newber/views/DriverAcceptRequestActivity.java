@@ -27,6 +27,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -81,7 +83,7 @@ public class DriverAcceptRequestActivity extends AppCompatActivity implements On
 
         // Set the fare
         TextView fare = findViewById(R.id.driver_accept_fare);
-        fare.setText(String.format("$%s", request.getCost()));
+        fare.setText(String.format(Locale.US, "$%.2f", request.getCost()));
     }
 
     @Override
