@@ -6,7 +6,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -15,7 +14,6 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -24,6 +22,7 @@ import android.widget.Toast;
 
 import com.cmput301w20t23.newber.R;
 import com.cmput301w20t23.newber.controllers.RideController;
+import com.cmput301w20t23.newber.helpers.CloseKeyboard;
 import com.cmput301w20t23.newber.models.Location;
 import com.cmput301w20t23.newber.models.Rider;
 import com.google.android.gms.common.api.Status;
@@ -282,12 +281,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                     // format text to include dollar sign ($) and 2 decimal places
                     fareText.setText(String.format(Locale.US, "$%.2f", fareValue));
                     // close soft keyboard
-                    View currentFocus = getCurrentFocus();
-                    if (currentFocus != null) {
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(currentFocus.getWindowToken(), 0);
-                    }
-                    currentFocus.clearFocus();
+                    CloseKeyboard.hideKeyboard(RiderRequestActivity.this);
                 }
                 return false;
             }
