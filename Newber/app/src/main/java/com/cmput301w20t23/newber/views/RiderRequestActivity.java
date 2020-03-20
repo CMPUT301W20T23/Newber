@@ -226,6 +226,10 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                                 getSupportFragmentManager().findFragmentById(R.id.start_autocomplete_fragment);
 
                         startAutocompleteSupportFragment.setText(startLocation.getName());
+
+                        if (startLocation.toString() != null && endLocation.toString() != null) {
+                            calculateFare();
+                        }
                     }
                 });
             }
@@ -245,6 +249,10 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                                 getSupportFragmentManager().findFragmentById(R.id.end_autocomplete_fragment);
 
                         endAutocompleteSupportFragment.setText(endLocation.getName());
+
+                        if (startLocation.toString() != null && endLocation.toString() != null) {
+                            calculateFare();
+                        }
                     }
                 });
             }
