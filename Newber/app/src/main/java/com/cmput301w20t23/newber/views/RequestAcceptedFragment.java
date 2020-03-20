@@ -1,5 +1,7 @@
 package com.cmput301w20t23.newber.views;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -108,13 +110,34 @@ public class RequestAcceptedFragment extends Fragment {
                         // If rider, remove driver from request and set status to PENDING
 //                        rideRequest.getDriver().setCurrentRequestId("");
 
-                        userController.removeUserCurrentRequestId(rideRequest.getDriver());
-                        rideRequest.setDriver(null);
-                        rideRequest.setStatus(RequestStatus.PENDING);
-                        rideController.updateRideRequest(rideRequest);
+                        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+                        dialogBuilder.setTitle("Cancel Ride");
+                        dialogBuilder.setMessage("Are you sure you want to cancel this ride? Your request will remain for other drivers to browse.");
 
-                        setUpButtons(view);
-                        setUpNameTextView(nameTextView, driver);
+                        dialogBuilder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+
+                                userController.removeUserCurrentRequestId(rideRequest.getDriver());
+                                rideRequest.setDriver(null);
+                                rideRequest.setStatus(RequestStatus.PENDING);
+                                rideController.updateRideRequest(rideRequest);
+
+                                setUpButtons(view);
+                                setUpNameTextView(nameTextView, driver);
+                            }
+                        });
+
+                        dialogBuilder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        });
+
+                        AlertDialog dialog = dialogBuilder.create();
+                        dialog.show();
                     }
                 });
 
