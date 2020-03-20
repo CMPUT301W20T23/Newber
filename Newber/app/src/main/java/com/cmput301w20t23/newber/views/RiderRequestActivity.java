@@ -265,10 +265,11 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                 // change fare once "Done" is pressed on keyboard
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     // get numerical value of fare offer
-                    String currentFare = fareText.getText().toString().replace("$", "");
+                    String inputFare = fareText.getText().toString().replace("$", "");
                     // update value only if user did not clear text field
-                    if (!currentFare.isEmpty()) {
-                        fareValue = Double.parseDouble(currentFare);
+                    if (!inputFare.isEmpty()) {
+                        fareValue = Double.parseDouble(inputFare);
+                        fareValue = ((fareValue < baseFareValue) ? baseFareValue : fareValue);
                     }
                     // format text to include dollar sign ($) and 2 decimal places
                     fareText.setText(String.format(Locale.US, "$%.2f", fareValue));
