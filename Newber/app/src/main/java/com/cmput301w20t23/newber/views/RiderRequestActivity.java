@@ -289,7 +289,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
             public void onClick(View view) {
                 if (startLocation.toString() != null && endLocation.toString() != null) {
                     // increase fare by 5%
-                    fareValue += 0.05*fareValue;
+                    fareValue += 0.05*baseFareValue;
                     fareText.setText(String.format(Locale.US, "$%.2f", fareValue));
                 }
             }
@@ -300,7 +300,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
             public void onClick(View view) {
                 if (startLocation.toString() != null && endLocation.toString() != null) {
                     // decrease fare by 5% up to base value
-                    fareValue -= 0.05*fareValue;
+                    fareValue -= 0.05*baseFareValue;
                     if (fareValue < baseFareValue)
                         fareValue = baseFareValue;
                     fareText.setText(String.format(Locale.US, "$%.2f", fareValue));
@@ -349,16 +349,14 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
      * fare text accordingly
      */
     private void calculateFare() {
-        // average cost per mile of driving from: https://newsroom.aaa.com/tag/driving-cost-per-mile/
-        final double AVG_COST_PER_MILE = 0.592; // 59.2 cents
-        final double NUM_METRES_IN_MILE = 1609.344;
-        final double FLAT_FEE = 1.00;
+        final double PRICE_PER_KM = 1.00;
+        final double FLAT_FEE = 3.50;
 
         // distance in metres
         double distanceInMetres = SphericalUtil.computeDistanceBetween(startLocation.toLatLng(), endLocation.toLatLng());
 
-        // convert metres to miles, multiply by cost per mile, and add flat fee
-        baseFareValue = (distanceInMetres/NUM_METRES_IN_MILE)*AVG_COST_PER_MILE + FLAT_FEE;
+        // convert metres to kilometres, multiply by cost per kilometres, and add flat fee
+        baseFareValue = (distanceInMetres/1000)*PRICE_PER_KM + FLAT_FEE;
 
         fareValue = baseFareValue;
         fareText.setText(String.format(Locale.US, "$%.2f", baseFareValue));
