@@ -17,7 +17,6 @@ import com.cmput301w20t23.newber.controllers.RideController;
 import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.Driver;
 import com.cmput301w20t23.newber.models.RideRequest;
-import com.cmput301w20t23.newber.models.Rider;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -285,51 +284,50 @@ public class DriverRequestActivity extends AppCompatActivity implements OnMapRea
      * @param latLng
      */
     private void queryOpenRequests(final LatLng latLng) {
-        // Set up search bounds
-        double distanceCenterToCorner = 5000 * Math.sqrt(2.0);
+        // Search radius
+        final double SEARCH_RADIUS = 5000;
+
+        // Set up map bounds
+        double distanceCenterToCorner = SEARCH_RADIUS * Math.sqrt(2.0);
         LatLng southwestCorner =
                 SphericalUtil.computeOffset(latLng, distanceCenterToCorner, 225.0);
         LatLng northeastCorner =
                 SphericalUtil.computeOffset(latLng, distanceCenterToCorner, 45.0);
-        final LatLngBounds searchBounds = new LatLngBounds(southwestCorner, northeastCorner);
+        final LatLngBounds mapBounds = new LatLngBounds(southwestCorner, northeastCorner);
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(mapBounds, 100));
 
-        // TODO: Sort by distance
         rideController.getPendingRideRequests(new Callback<ArrayList<RideRequest>>() {
             @Override
             public void myResponseCallback(ArrayList<RideRequest> result) {
                 ArrayList<RideRequest> openRequests = new ArrayList<RideRequest>();
 
                 for (RideRequest rideRequest : result) {
-                    LatLng startLatLng = new LatLng(rideRequest.getStartLocation().getLatitude(),
-                            rideRequest.getStartLocation().getLongitude());
-
-                    if (searchBounds.contains(startLatLng)) {
+                    if (SphericalUtil.computeDistanceBetween(
+                            latLng, rideRequest.getStartLocation().toLatLng()) <= SEARCH_RADIUS) {
                         System.out.println(rideRequest.toString());
                         openRequests.add(rideRequest);
                     }
                 }
 
-                updateRequestList(latLng, openRequests);
+                Collections.sort(openRequests, new Comparator<RideRequest>() {
+                    @Override
+                    public int compare(RideRequest o1, RideRequest o2) {
+                        double dist1 = SphericalUtil.computeDistanceBetween(
+                                latLng, o1.getStartLocation().toLatLng());
+
+                        double dist2 = SphericalUtil.computeDistanceBetween(
+                                latLng, o2.getStartLocation().toLatLng());
+
+                        return (int) (dist1 - dist2);
+                    }
+                });
+
+                updateRequestList(openRequests);
             }
         });
     }
 
-    private void updateRequestList(final LatLng latLng, ArrayList<RideRequest> openRequests) {
-        Collections.sort(openRequests, new Comparator<RideRequest>() {
-            @Override
-            public int compare(RideRequest o1, RideRequest o2) {
-                double val1 =
-                        (latLng.latitude - o1.getStartLocation().getLatitude()) +
-                                (latLng.longitude - o1.getStartLocation().getLongitude());
-
-                double val2 =
-                        (latLng.latitude - o2.getStartLocation().getLatitude()) +
-                                (latLng.longitude - o2.getStartLocation().getLongitude());
-
-                return (int) (val1 - val2);
-            }
-        });
-
+    private void updateRequestList(ArrayList<RideRequest> openRequests) {
         System.out.println("in updateRequestList");
         for (RideRequest req : openRequests) {
             System.out.println(req.toString());
