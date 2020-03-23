@@ -156,10 +156,9 @@ public class RouteGetter {
 
             try {
                 JSONObject jObject = new JSONObject(jsonData[0]);
-                Log.d("ParserTask", jsonData[0]);
-
                 route = parseData(jObject);
-                Log.d("ParserTask", route.toString());
+                Log.d("ParserTask", route.getPoints().toString());
+                Log.d("ParserTask", String.valueOf(route.getDistanceInMeters()));
             } catch (Exception e) {
                 Log.d("ParserTask", e.toString());
                 e.printStackTrace();

@@ -56,7 +56,7 @@
             android:layout_height="match_parent"
             android:background="@color/quantum_grey"
             android:padding="5dp"
-            android:text="To:"
+            android:text="End:"
             android:gravity="center_vertical"
             android:textColor="@color/colorBlack"
             android:textSize="18sp"/>
