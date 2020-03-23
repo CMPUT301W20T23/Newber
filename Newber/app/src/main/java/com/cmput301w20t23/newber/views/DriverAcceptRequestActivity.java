@@ -1,13 +1,9 @@
 package com.cmput301w20t23.newber.views;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -16,17 +12,21 @@ import com.cmput301w20t23.newber.R;
 import com.cmput301w20t23.newber.controllers.RideController;
 import com.cmput301w20t23.newber.controllers.UserController;
 import com.cmput301w20t23.newber.helpers.Callback;
+import com.cmput301w20t23.newber.controllers.OnMapAndViewReadyListener;
+import com.cmput301w20t23.newber.helpers.RouteGetter;
 import com.cmput301w20t23.newber.models.Driver;
-import com.cmput301w20t23.newber.models.Location;
 import com.cmput301w20t23.newber.models.RideRequest;
+import com.cmput301w20t23.newber.models.Route;
 import com.cmput301w20t23.newber.models.User;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+
 import java.util.Map;
 
 /**
@@ -34,8 +34,7 @@ import java.util.Map;
  *
  * @author Ayushi Patel, Ibrahim Aly
  */
-public class DriverAcceptRequestActivity extends AppCompatActivity implements OnMapReadyCallback {
-
+public class DriverAcceptRequestActivity extends AppCompatActivity {
     private GoogleMap googleMap;
     private RideRequest request;
     private RideController rideController;
@@ -53,7 +52,14 @@ public class DriverAcceptRequestActivity extends AppCompatActivity implements On
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+
+        new OnMapAndViewReadyListener(mapFragment, new Callback<GoogleMap>() {
+            @Override
+            public void myResponseCallback(GoogleMap result) {
+                googleMap = result;
+                configureMap();
+            }
+        });
 
         setUpTextViews();
     }
@@ -84,16 +90,6 @@ public class DriverAcceptRequestActivity extends AppCompatActivity implements On
         fare.setText(String.format("$%s", request.getCost()));
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        this.googleMap = googleMap;
-
-        // Add a marker in Edmonton and move the camera
-        this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(request.getStartLocation().toLatLng(), 12.0f));
-        this.googleMap.addMarker(new MarkerOptions().position(request.getStartLocation().toLatLng()));
-        this.googleMap.addMarker(new MarkerOptions().position(request.getEndLocation().toLatLng()));
-    }
-
     /**
      * Cancel Driver Accept Request Function
      * @param view
@@ -115,5 +111,37 @@ public class DriverAcceptRequestActivity extends AppCompatActivity implements On
         driver.setCurrentRequestId(request.getRequestId());
         userController.updateUserCurrentRequestId(driver.getUid(), driver.getCurrentRequestId());
         finish();
+    }
+
+    private void configureMap() {
+        LatLng pickUp = request.getStartLocation().toLatLng();
+        LatLng dropOff = request.getEndLocation().toLatLng();
+
+        // Draw route between pick up and drop off locations
+        RouteGetter.getRoute(pickUp, dropOff, getString(R.string.API_KEY), new Callback<Route>() {
+            @Override
+            public void myResponseCallback(Route result) {
+                // Drawing polyline in the Google Map
+                if (result != null) {
+                    googleMap.addPolyline(new PolylineOptions()
+                            .addAll(result.getPoints())
+                            .width(20)
+                            .color(getColor(R.color.bannerGreen)));
+                }
+            }
+        });
+
+        // Add pick up and drop off location markers
+        googleMap.addMarker(new MarkerOptions().position(pickUp).title("Pick Up"));
+        googleMap.addMarker(new MarkerOptions().position(dropOff).title("Drop Off")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+
+        // Move camera
+        LatLngBounds latLngBounds = new LatLngBounds.Builder()
+                .include(pickUp)
+                .include(dropOff)
+                .build();
+
+        this.googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 100));
     }
 }

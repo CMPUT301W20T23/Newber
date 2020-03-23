@@ -11,7 +11,6 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -20,23 +19,28 @@ import android.widget.Toast;
 
 import com.cmput301w20t23.newber.R;
 import com.cmput301w20t23.newber.controllers.RideController;
+import com.cmput301w20t23.newber.helpers.Callback;
+import com.cmput301w20t23.newber.helpers.RouteGetter;
 import com.cmput301w20t23.newber.models.Location;
 import com.cmput301w20t23.newber.models.Rider;
+import com.cmput301w20t23.newber.models.Route;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.maps.android.SphericalUtil;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -74,6 +78,8 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
     private Marker startMarker;
     private Marker endMarker;
 
+    private Polyline polyline;
+
     private RideController rideController;
 
     /**
@@ -107,7 +113,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
             startMarker.remove();
         }
 
-        startMarker = googleMap.addMarker(new MarkerOptions().position(latLng));
+        startMarker = googleMap.addMarker(new MarkerOptions().position(latLng).title("Start"));
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12.0f));
     }
 
@@ -120,7 +126,8 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
             endMarker.remove();
         }
 
-        endMarker = googleMap.addMarker(new MarkerOptions().position(latLng));
+        endMarker = googleMap.addMarker(new MarkerOptions().position(latLng).title("End")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12.0f));
     }
 
@@ -155,7 +162,16 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                 startAutocompleteSupportFragment.setText(place.toString());
 
                 if (startLocation.toString() != null && endLocation.toString() != null) {
-                    calculateFare();
+                    RouteGetter.getRoute(startLocation.toLatLng(), endLocation.toLatLng(),
+                            getString(R.string.API_KEY), new Callback<Route>() {
+                                @Override
+                                public void myResponseCallback(Route result) {
+                                    if (result != null) {
+                                        drawRoute(result.getPoints());
+                                        calculateFare(result.getDistanceInMeters());
+                                    }
+                                }
+                            });
                 }
             }
 
@@ -189,7 +205,16 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                 setEndMarker(place.getLatLng());
 
                 if (startLocation.toString() != null && endLocation.toString() != null) {
-                    calculateFare();
+                    RouteGetter.getRoute(startLocation.toLatLng(), endLocation.toLatLng(),
+                            getString(R.string.API_KEY), new Callback<Route>() {
+                                @Override
+                                public void myResponseCallback(Route result) {
+                                    if (result != null) {
+                                        drawRoute(result.getPoints());
+                                        calculateFare(result.getDistanceInMeters());
+                                    }
+                                }
+                            });
                 }
             }
 
@@ -222,6 +247,19 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                                 getSupportFragmentManager().findFragmentById(R.id.start_autocomplete_fragment);
 
                         startAutocompleteSupportFragment.setText(startLocation.getName());
+
+                        if (startLocation.toString() != null && endLocation.toString() != null) {
+                            RouteGetter.getRoute(startLocation.toLatLng(), endLocation.toLatLng(),
+                                    getString(R.string.API_KEY), new Callback<Route>() {
+                                        @Override
+                                        public void myResponseCallback(Route result) {
+                                            if (result != null) {
+                                                drawRoute(result.getPoints());
+                                                calculateFare(result.getDistanceInMeters());
+                                            }
+                                        }
+                                    });
+                        }
                     }
                 });
             }
@@ -241,6 +279,19 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                                 getSupportFragmentManager().findFragmentById(R.id.end_autocomplete_fragment);
 
                         endAutocompleteSupportFragment.setText(endLocation.getName());
+
+                        if (startLocation.toString() != null && endLocation.toString() != null) {
+                            RouteGetter.getRoute(startLocation.toLatLng(), endLocation.toLatLng(),
+                                    getString(R.string.API_KEY), new Callback<Route>() {
+                                        @Override
+                                        public void myResponseCallback(Route result) {
+                                            if (result != null) {
+                                                drawRoute(result.getPoints());
+                                                calculateFare(result.getDistanceInMeters());
+                                            }
+                                        }
+                                    });
+                        }
                     }
                 });
             }
@@ -315,20 +366,35 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
     }
 
     /**
+     * Draws a polyline based on a list of points along the route
+     *
+     * @param points the list of points along the route
+     */
+    private void drawRoute(List<LatLng> points) {
+        if (polyline != null) {
+            polyline.remove();
+        }
+
+        polyline = googleMap.addPolyline(new PolylineOptions()
+                .addAll(points)
+                .width(20)
+                .color(getColor(R.color.bannerGreen)));
+    }
+
+    /**
      * Calculate base fare based on distance between start location and end location and set
      * fare text accordingly
+     *
+     * @param distanceInMeters the route distance in meters
      */
-    private void calculateFare() {
+    private void calculateFare(double distanceInMeters) {
         // average cost per mile of driving from: https://newsroom.aaa.com/tag/driving-cost-per-mile/
         final double AVG_COST_PER_MILE = 0.592; // 59.2 cents
         final double NUM_METRES_IN_MILE = 1609.344;
         final double FLAT_FEE = 1.00;
 
-        // distance in metres
-        double distanceInMetres = SphericalUtil.computeDistanceBetween(startLocation.toLatLng(), endLocation.toLatLng());
-
         // convert metres to miles, multiply by cost per mile, and add flat fee
-        baseFareValue = (distanceInMetres/NUM_METRES_IN_MILE)*AVG_COST_PER_MILE + FLAT_FEE;
+        baseFareValue = (distanceInMeters/NUM_METRES_IN_MILE)*AVG_COST_PER_MILE + FLAT_FEE;
 
         fareValue = baseFareValue;
         fareText.setText(String.format(Locale.US, "$%.2f", baseFareValue));

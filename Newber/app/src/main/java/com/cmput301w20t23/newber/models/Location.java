@@ -13,7 +13,6 @@ public class Location implements Serializable {
     private double longitude;
 
     public Location() {
-
     }
 
     public Location(Place place) {
