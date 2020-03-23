@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -13,17 +14,21 @@ import com.cmput301w20t23.newber.controllers.RideController;
 import com.cmput301w20t23.newber.controllers.UserController;
 import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.controllers.OnMapAndViewReadyListener;
-import com.cmput301w20t23.newber.helpers.RouteDrawer;
+import com.cmput301w20t23.newber.helpers.RouteGetter;
 import com.cmput301w20t23.newber.models.Driver;
 import com.cmput301w20t23.newber.models.RideRequest;
+import com.cmput301w20t23.newber.models.Route;
 import com.cmput301w20t23.newber.models.User;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+
 import java.util.Map;
 
 /**
@@ -31,8 +36,7 @@ import java.util.Map;
  *
  * @author Ayushi Patel, Ibrahim Aly
  */
-public class DriverAcceptRequestActivity extends AppCompatActivity implements Callback<GoogleMap> {
-
+public class DriverAcceptRequestActivity extends AppCompatActivity {
     private GoogleMap googleMap;
     private RideRequest request;
     private RideController rideController;
@@ -51,7 +55,13 @@ public class DriverAcceptRequestActivity extends AppCompatActivity implements Ca
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
 
-        new OnMapAndViewReadyListener(mapFragment, this);
+        new OnMapAndViewReadyListener(mapFragment, new Callback<GoogleMap>() {
+            @Override
+            public void myResponseCallback(GoogleMap result) {
+                googleMap = result;
+                configureMap();
+            }
+        });
 
         setUpTextViews();
     }
@@ -105,18 +115,23 @@ public class DriverAcceptRequestActivity extends AppCompatActivity implements Ca
         finish();
     }
 
-    public void myResponseCallback(GoogleMap googleMap) {
-        this.googleMap = googleMap;
-        configureMap();
-    }
-
     private void configureMap() {
         LatLng pickUp = request.getStartLocation().toLatLng();
         LatLng dropOff = request.getEndLocation().toLatLng();
 
         // Draw route between pick up and drop off locations
-        RouteDrawer routeDrawer = new RouteDrawer(googleMap, getString(R.string.API_KEY));
-        routeDrawer.drawRoute(pickUp, dropOff);
+        RouteGetter.getRoute(pickUp, dropOff, getString(R.string.API_KEY), new Callback<Route>() {
+            @Override
+            public void myResponseCallback(Route result) {
+                // Drawing polyline in the Google Map
+                if (result != null) {
+                    googleMap.addPolyline(new PolylineOptions()
+                            .addAll(result.getPoints())
+                            .width(6)
+                            .color(Color.BLUE));
+                }
+            }
+        });
 
         // Add pick up and drop off location markers
         googleMap.addMarker(new MarkerOptions().position(pickUp).title("Pick Up"));

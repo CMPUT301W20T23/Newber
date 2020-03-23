@@ -1,13 +1,10 @@
 package com.cmput301w20t23.newber.helpers;
 
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.google.android.gms.maps.GoogleMap;
+import com.cmput301w20t23.newber.models.Route;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
 
 import org.json.JSONObject;
@@ -18,57 +15,36 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class draws a route on the provided Google map.
+ * Singleton class for getting route details between two points.
  *
  * @author Ayushi Patel
  */
-public class RouteDrawer {
-    final private GoogleMap googleMap;
-    private String apiKey;
-    private Polyline polyline;
-
-    /**
-     * Instantiates a new RouteDrawer.
-     * @param googleMap the Google map
-     * @param apiKey    the Directions API key
-     */
-    public RouteDrawer(GoogleMap googleMap, String apiKey) {
-        this.googleMap = googleMap;
-        this.apiKey = apiKey;
-    }
-
+public class RouteGetter {
     /**
      * Starts fetcher and parser tasks.
+     *
      * @param origin    the start location
      * @param dest      the end location
      */
-    public void drawRoute(LatLng origin, LatLng dest) {
-        String url = getUrl(origin, dest);
+    public static void getRoute(LatLng origin, LatLng dest, String apiKey,
+                                final Callback<Route> callback) {
+        String url = getUrl(origin, dest, apiKey);
 
         FetchUrlTask fetchUrlTask = new FetchUrlTask(new Callback<String>() {
             @Override
-            public void myResponseCallback(String jsonData) {
-                ParseJsonTask parseJsonTask = new ParseJsonTask(new Callback<List<LatLng>>() {
+            public void myResponseCallback(String result) {
+                ParseJsonTask parseJsonTask = new ParseJsonTask(new Callback<Route>() {
                     @Override
-                    public void myResponseCallback(List<LatLng> route) {
-                        if (polyline != null) {
-                            polyline.remove();
-                        }
-
-                        // Drawing polyline in the Google Map
-                        polyline = googleMap.addPolyline(new PolylineOptions()
-                            .addAll(route)
-                            .width(6)
-                            .color(Color.BLUE));
+                    public void myResponseCallback(Route result) {
+                        callback.myResponseCallback(result);
                     }
                 });
 
                 // Invokes the thread for parsing the JSON data
-                parseJsonTask.execute(jsonData);
+                parseJsonTask.execute(result);
             }
         });
 
@@ -94,7 +70,7 @@ public class RouteDrawer {
         @Override
         protected String doInBackground(String... url) {
             // For storing data from web service
-            String data = null;
+            String data = "";
 
             try {
                 // Fetching the data from web service
@@ -117,7 +93,7 @@ public class RouteDrawer {
          * Downloads data from the URL.
          * @param strUrl    the URL string
          * @return the downloaded data
-         * @throws IOException
+         * @throws IOException thrown if stream not closed
          */
         private String downloadUrl(String strUrl) throws IOException {
             String data = "";
@@ -162,21 +138,21 @@ public class RouteDrawer {
     /**
      * This class parses the JSON data.
      */
-    private static class ParseJsonTask extends AsyncTask<String, Integer, List<LatLng>> {
-        private Callback<List<LatLng>> callback;
+    private static class ParseJsonTask extends AsyncTask<String, Integer, Route> {
+        private Callback<Route> callback;
 
         /**
          * Instantiates a new ParseJsonTask.
          *
          * @param callback  the callback to fire
          */
-        ParseJsonTask(Callback<List<LatLng>> callback) {
+        ParseJsonTask(Callback<Route> callback) {
             this.callback = callback;
         }
 
         @Override
-        protected List<LatLng> doInBackground(String... jsonData) {
-            List<LatLng> route = null;
+        protected Route doInBackground(String... jsonData) {
+            Route route = null;
 
             try {
                 JSONObject jObject = new JSONObject(jsonData[0]);
@@ -193,7 +169,7 @@ public class RouteDrawer {
         }
 
         @Override
-        protected void onPostExecute(List<LatLng> result) {
+        protected void onPostExecute(Route result) {
             super.onPostExecute(result);
             callback.myResponseCallback(result);
         }
@@ -204,14 +180,21 @@ public class RouteDrawer {
          * @param jObject   the JSON data
          * @return a list of points along the route
          */
-        private List<LatLng> parseData(JSONObject jObject) {
-            List<LatLng> route = new ArrayList<>();
+        private Route parseData(JSONObject jObject) {
+            Route route = null;
 
             try {
                 JSONObject jRoute = (JSONObject) jObject.getJSONArray("routes").get(0);
+
                 JSONObject jOverviewPolyline = (JSONObject) jRoute.get("overview_polyline");
                 String points = jOverviewPolyline.getString("points");
-                route = PolyUtil.decode(points);
+                List<LatLng> routePoints = PolyUtil.decode(points);
+
+                JSONObject jLeg = (JSONObject) jRoute.getJSONArray("legs").get(0);
+                JSONObject jDistance = (JSONObject) jLeg.get("distance");
+                double routeDistance = jDistance.getDouble("value");
+
+                route = new Route(routePoints, routeDistance);
             } catch (Exception e) {
                 Log.d("ParserTask", e.toString());
                 e.printStackTrace();
@@ -225,9 +208,9 @@ public class RouteDrawer {
      * Builds the URL string
      * @param origin    the start location
      * @param dest      the end location
-     * @return
+     * @return the URL string
      */
-    private String getUrl(LatLng origin, LatLng dest) {
+    private static String getUrl(LatLng origin, LatLng dest, String apiKey) {
         String url = "https://maps.googleapis.com/maps/api/directions/";
 
         String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
