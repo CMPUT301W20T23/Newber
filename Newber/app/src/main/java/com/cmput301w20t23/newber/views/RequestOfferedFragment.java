@@ -1,5 +1,6 @@
 package com.cmput301w20t23.newber.views;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,9 +68,8 @@ public class RequestOfferedFragment extends Fragment {
         TextView pickupLocationTextView = view.findViewById(R.id.pickup_location);
         TextView dropoffLocationTextView = view.findViewById(R.id.dropoff_location);
         TextView fareTextView = view.findViewById(R.id.ride_fare);
-        final TextView nameTextView = view.findViewById(R.id.rider_main_driver_name);
-        final TextView phoneTextView = view.findViewById(R.id.rider_main_driver_phone);
-        final TextView emailTextView = view.findViewById(R.id.rider_main_driver_email);
+        TextView userLabelTextView = view.findViewById(R.id.user_label);
+        TextView usernameTextView = view.findViewById(R.id.username);
         Button acceptOfferButton = view.findViewById(R.id.rider_accept_offer_button);
         Button declineOfferButton = view.findViewById(R.id.rider_decline_offer_button);
 
@@ -80,6 +80,11 @@ public class RequestOfferedFragment extends Fragment {
 
         switch (role) {
             case "Rider":
+                userLabelTextView.setText("Driver:");
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+                View dialogView = inflater.inflate(R.layout.profile_dialog, null);
+                dialogBuilder.setView(dialogView);
+
                 // Set values of info box
                 ((MainActivity) getActivity()).userController.getUser(rideRequest.getDriver(),
                         new Callback<Map<String, Object>>() {
