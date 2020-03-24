@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
@@ -413,7 +414,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
      *
      * @param distanceInMeters the route distance in meters
      */
-    private void calculateFare(double distanceInMeters) {
+    private void calculateFare(double distanceInMetres) {
         final double PRICE_PER_KM = 1.00;
         final double FLAT_FEE = 3.50;
 
