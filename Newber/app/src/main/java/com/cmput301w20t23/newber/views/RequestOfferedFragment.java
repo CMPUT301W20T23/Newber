@@ -1,6 +1,7 @@
 package com.cmput301w20t23.newber.views;
 
 import android.app.AlertDialog;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,7 +70,7 @@ public class RequestOfferedFragment extends Fragment {
         TextView dropoffLocationTextView = view.findViewById(R.id.dropoff_location);
         TextView fareTextView = view.findViewById(R.id.ride_fare);
         TextView userLabelTextView = view.findViewById(R.id.user_label);
-        TextView usernameTextView = view.findViewById(R.id.username);
+        final TextView usernameTextView = view.findViewById(R.id.username);
         Button acceptOfferButton = view.findViewById(R.id.rider_accept_offer_button);
         Button declineOfferButton = view.findViewById(R.id.rider_decline_offer_button);
 
@@ -81,9 +82,6 @@ public class RequestOfferedFragment extends Fragment {
         switch (role) {
             case "Rider":
                 userLabelTextView.setText("Driver:");
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
-                View dialogView = inflater.inflate(R.layout.profile_dialog, null);
-                dialogBuilder.setView(dialogView);
 
                 // Set values of info box
                 ((MainActivity) getActivity()).userController.getUser(rideRequest.getDriver(),
@@ -91,11 +89,9 @@ public class RequestOfferedFragment extends Fragment {
                             @Override
                             public void myResponseCallback(Map<String, Object> result) {
                                 User driver = (User) result.get("user");
-                                nameTextView.setText(driver.getUsername());
-                                phoneTextView.setText(driver.getPhone());
-                                emailTextView.setText(driver.getEmail());
-                                nameTextView.setOnClickListener(new NameOnClickListener(role, driver));
-                                nameTextView.setOnClickListener(new NameOnClickListener(role, driver));
+                                usernameTextView.setText(driver.getUsername());
+                                usernameTextView.setPaintFlags(usernameTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                                usernameTextView.setOnClickListener(new NameOnClickListener(getActivity(), role, driver));
                             }
                         });
 
@@ -134,16 +130,17 @@ public class RequestOfferedFragment extends Fragment {
                 break;
 
             case "Driver":
+                userLabelTextView.setText("Rider:");
+
                 // Set values of info box
                 ((MainActivity) getActivity()).userController.getUser(rideRequest.getRider(),
                         new Callback<Map<String, Object>>() {
                             @Override
                             public void myResponseCallback(Map<String, Object> result) {
                                 User rider = (User) result.get("user");
-                                nameTextView.setText(rider.getUsername());
-                                phoneTextView.setText(rider.getPhone());
-                                emailTextView.setText(rider.getEmail());
-                                nameTextView.setOnClickListener(new NameOnClickListener(role, rider));
+                                usernameTextView.setText(rider.getUsername());
+                                usernameTextView.setPaintFlags(usernameTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                                usernameTextView.setOnClickListener(new NameOnClickListener(getActivity(), role, rider));
                             }
                         });
 

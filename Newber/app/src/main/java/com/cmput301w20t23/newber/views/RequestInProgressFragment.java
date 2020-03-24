@@ -84,7 +84,7 @@ public class RequestInProgressFragment extends Fragment {
                                 nameTextView.setText(driver.getUsername());
                                 phoneTextView.setText(driver.getPhone());
                                 emailTextView.setText(driver.getEmail());
-                                nameTextView.setOnClickListener(new NameOnClickListener(role, driver));
+                                nameTextView.setOnClickListener(new NameOnClickListener(getActivity(), role, driver));
                             }
                         });
 
@@ -144,7 +144,7 @@ public class RequestInProgressFragment extends Fragment {
                                 nameTextView.setText(rider.getUsername());
                                 phoneTextView.setText(rider.getPhone());
                                 emailTextView.setText(rider.getEmail());
-                                nameTextView.setOnClickListener(new NameOnClickListener(role, rider));
+                                nameTextView.setOnClickListener(new NameOnClickListener(getActivity(), role, rider));
                             }
                         });
 

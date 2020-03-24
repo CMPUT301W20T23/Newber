@@ -227,7 +227,7 @@ public class RequestAcceptedFragment extends Fragment {
     }
 
     public void setUpNameTextView(TextView nameTextView, User user) {
-        nameTextView.setOnClickListener(new NameOnClickListener(role, user));
+        nameTextView.setOnClickListener(new NameOnClickListener(getActivity(), role, user));
     }
 
     /**
