@@ -1,5 +1,7 @@
 package com.cmput301w20t23.newber.views;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -90,8 +92,43 @@ public class RequestInProgressFragment extends Fragment {
 //                phoneTextView.setText(rideRequest.getDriver().getPhone());
 //                emailTextView.setText(rideRequest.getDriver().getEmail());
 
-                // Complete ride button only visible by driver; rider hides it
-                completeButton.setVisibility(View.INVISIBLE);
+                completeButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.bannerBlue));
+
+                completeButton.setText("Complete");
+
+                completeButton.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        // TODO: Set request status to COMPLETED and move Rider to PAYMENT screen
+
+                        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+                        dialogBuilder.setTitle("Complete Ride");
+                        dialogBuilder.setMessage("Are you sure this ride has been completed?");
+
+                        dialogBuilder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                                rideRequest.setStatus(RequestStatus.COMPLETED);
+                                rideController.updateRideRequest(rideRequest);
+
+                                // TODO: Start RiderPaymentActivity
+                            }
+                        });
+
+                        dialogBuilder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        });
+
+                        AlertDialog dialog = dialogBuilder.create();
+                        dialog.show();
+                    }
+                });
 
                 // Bring up profile when name is clicked
 //                nameTextView.setOnClickListener(new NameOnClickListener(role, rideRequest.getDriver()));
@@ -115,22 +152,8 @@ public class RequestInProgressFragment extends Fragment {
 //                phoneTextView.setText(rideRequest.getRider().getPhone());
 //                emailTextView.setText(rideRequest.getRider().getEmail());
 
-                completeButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.bannerBlue));
-
-                completeButton.setText("Complete");
-
-                completeButton.setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View v)
-                    {
-                        // TODO: Set request status to COMPLETED and move Driver to PAYMENT screen
-                        rideRequest.setStatus(RequestStatus.COMPLETED);
-                        rideController.updateRideRequest(rideRequest);
-
-                        // TODO: Start DriverPaymentActivity
-                    }
-                });
+                // Complete ride button only visible by rider; driver hides it
+                completeButton.setVisibility(View.INVISIBLE);
 
                 // Bring up profile when name is clicked
 //                nameTextView.setOnClickListener(new NameOnClickListener(role, rideRequest.getRider()));
