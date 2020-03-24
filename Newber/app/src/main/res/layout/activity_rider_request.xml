@@ -96,11 +96,12 @@
             android:gravity="center_vertical"
             android:textSize="18sp"/>
 
-        <TextView
+        <EditText
             android:id="@+id/fare_text"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="30"
+            android:inputType="numberDecimal"
             android:background="@color/colorWhite"
             android:padding="5dp"
             android:textColor="@color/colorBlack"

@@ -14,6 +14,8 @@ import com.cmput301w20t23.newber.controllers.UserController;
 import com.cmput301w20t23.newber.models.RideRequest;
 import com.cmput301w20t23.newber.models.Rider;
 
+import java.util.Locale;
+
 /**
  * The Android Fragment that is shown when the user has a pending current ride request.
  *
@@ -54,7 +56,7 @@ public class RequestPendingFragment extends Fragment {
         System.out.println(rideRequest.getStartLocation());
         pickupLocationTextView.setText(rideRequest.getStartLocation().getName());
         dropoffLocationTextView.setText(rideRequest.getEndLocation().getName());
-        fareTextView.setText(Double.toString(rideRequest.getCost()));
+        fareTextView.setText(String.format(Locale.US, "$%.2f", rideRequest.getCost()));
 
         cancelRequestButton.setOnClickListener(new View.OnClickListener()
         {
@@ -62,7 +64,6 @@ public class RequestPendingFragment extends Fragment {
             public void onClick(View v)
             {
                 // Remove current request ID from firebase user entry
-//                rideRequest.getRider().setCurrentRequestId("");
                 userController.removeUserCurrentRequestId(rideRequest.getRider());
 
                 // Remove ride request entry from firebase

@@ -12,13 +12,16 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmput301w20t23.newber.R;
 import com.cmput301w20t23.newber.controllers.RideController;
+import com.cmput301w20t23.newber.helpers.CloseKeyboard;
 import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.helpers.RouteGetter;
 import com.cmput301w20t23.newber.models.Location;
@@ -43,6 +46,7 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -69,7 +73,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
     //Ride fare
     private double baseFareValue;
     private double fareValue;
-    private TextView fareText;
+    private EditText fareText;
 
     //A geocoder to successfully translate Latitude Longitude to human-readable addresses
     private Geocoder geocoder;
@@ -306,6 +310,27 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         ImageButton increaseButton = findViewById(R.id.increase_button);
         ImageButton decreaseButton = findViewById(R.id.decrease_button);
 
+        fareText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                // change fare once "Done" is pressed on keyboard
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    // get numerical value of fare offer
+                    String inputFare = fareText.getText().toString().replace("$", "");
+                    // update value only if user did not clear text field
+                    if (!inputFare.isEmpty()) {
+                        fareValue = Double.parseDouble(inputFare);
+                        fareValue = ((fareValue < baseFareValue) ? baseFareValue : fareValue);
+                    }
+                    // format text to include dollar sign ($) and 2 decimal places
+                    fareText.setText(String.format(Locale.US, "$%.2f", fareValue));
+                    // close soft keyboard
+                    CloseKeyboard.hideKeyboard(RiderRequestActivity.this);
+                }
+                return false;
+            }
+        });
+
         increaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -329,6 +354,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                 }
             }
         });
+
     }
 
     /**
@@ -388,13 +414,11 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
      * @param distanceInMeters the route distance in meters
      */
     private void calculateFare(double distanceInMeters) {
-        // average cost per mile of driving from: https://newsroom.aaa.com/tag/driving-cost-per-mile/
-        final double AVG_COST_PER_MILE = 0.592; // 59.2 cents
-        final double NUM_METRES_IN_MILE = 1609.344;
-        final double FLAT_FEE = 1.00;
+        final double PRICE_PER_KM = 1.00;
+        final double FLAT_FEE = 3.50;
 
-        // convert metres to miles, multiply by cost per mile, and add flat fee
-        baseFareValue = (distanceInMeters/NUM_METRES_IN_MILE)*AVG_COST_PER_MILE + FLAT_FEE;
+        // convert metres to kilometres, multiply by cost per kilometres, and add flat fee
+        baseFareValue = (distanceInMetres/1000)*PRICE_PER_KM + FLAT_FEE;
 
         fareValue = baseFareValue;
         fareText.setText(String.format(Locale.US, "$%.2f", baseFareValue));
@@ -494,6 +518,11 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         Intent intent = getIntent();
         Rider rider = (Rider) intent.getSerializableExtra("rider");
         System.out.println("rider username:" + rider.getUsername());
+
+        // round fare value to 2 decimal places
+        DecimalFormat fareFormat = new DecimalFormat("#.00");
+        fareValue = Double.valueOf(fareFormat.format(fareValue));
+
         rideController.createRideRequest(startLocation, endLocation, fareValue, rider.getUid());
         finish();
     }
