@@ -121,7 +121,7 @@ public class RequestInProgressFragment extends Fragment {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 dialogInterface.dismiss();
-                                rideRequest.setStatus(RequestStatus.COMPLETED);
+                                rideRequest.setStatus(RequestStatus.PAYMENT);
                                 rideController.updateRideRequest(rideRequest);
 
                                 // TODO: Start RiderPaymentActivity

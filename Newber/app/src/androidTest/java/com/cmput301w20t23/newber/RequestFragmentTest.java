@@ -41,8 +41,8 @@ public class RequestFragmentTest {
         solo.assertCurrentActivity("Wrong activity", LoginActivity.class);
 
         //login as rider
-        solo.enterText((EditText) solo.getView(R.id.email_login), "testLogin@test.com");
-        solo.enterText((EditText) solo.getView(R.id.password_login), "correctPassword");
+        solo.enterText((EditText) solo.getView(R.id.email_login), "testRider@rider.com");
+        solo.enterText((EditText) solo.getView(R.id.password_login), "password");
         solo.clickOnView(solo.getView(R.id.login_button));
         solo.clickOnView((solo.getView(R.id.create_request_button)));
         //need to sleep so map loads
@@ -67,7 +67,7 @@ public class RequestFragmentTest {
         solo.clickOnView(solo.getView(R.id.profile));
         solo.clickOnView(solo.getView(R.id.logout));
         solo.sleep(1000);
-        solo.enterText((EditText) solo.getView(R.id.email_login), "testDriver@drive.com");
+        solo.enterText((EditText) solo.getView(R.id.email_login), "testDriver@driver.com");
         solo.enterText((EditText) solo.getView(R.id.password_login), "password");
         solo.clickOnView(solo.getView(R.id.login_button));
         solo.clickOnView(solo.getView(R.id.create_request_button));
@@ -89,22 +89,23 @@ public class RequestFragmentTest {
         solo.clickOnView(solo.getView(R.id.profile));
         solo.clickOnView(solo.getView(R.id.logout));
         solo.sleep(1000);
-        solo.enterText((EditText) solo.getView(R.id.email_login), "testLogin@test.com");
-        solo.enterText((EditText) solo.getView(R.id.password_login), "correctPassword");
+        solo.enterText((EditText) solo.getView(R.id.email_login), "testRider@rider.com");
+        solo.enterText((EditText) solo.getView(R.id.password_login), "password");
         solo.clickOnView(solo.getView(R.id.login_button));
         solo.clickOnView(solo.getView(R.id.rider_accept_offer_button));
 
         //check rider recieved offer
+        solo.sleep(1000);
         text = (TextView) solo.getView(R.id.rider_main_driver_name);
-        assertEquals("testUser2", text.getText());
+        assertEquals("testDriver", text.getText());
         text = (TextView) solo.getView(R.id.rider_main_driver_email);
-        assertEquals("testDriver@drive.com", text.getText());
+        assertEquals("testDriver@driver.com", text.getText());
 
         //logout, back to driver
         solo.clickOnView(solo.getView(R.id.profile));
         solo.clickOnView(solo.getView(R.id.logout));
         solo.sleep(1000);
-        solo.enterText((EditText) solo.getView(R.id.email_login), "testDriver@drive.com");
+        solo.enterText((EditText) solo.getView(R.id.email_login), "testDriver@driver.com");
         solo.enterText((EditText) solo.getView(R.id.password_login), "password");
         solo.clickOnView(solo.getView(R.id.login_button));
 
@@ -112,8 +113,24 @@ public class RequestFragmentTest {
         //commence ride
         solo.clickOnView(solo.getView(R.id.request_accepted_button));
         solo.sleep(100);
+        solo.clickOnView(solo.getView(R.id.profile));
+        solo.clickOnView(solo.getView(R.id.logout));
+
+        //back to rider again
+        solo.enterText((EditText) solo.getView(R.id.email_login), "testRider@rider.com");
+        solo.enterText((EditText) solo.getView(R.id.password_login), "password");
+        solo.clickOnView(solo.getView(R.id.login_button));
+
+        //check ride is in progress
+        solo.sleep(1000);
+        text = (TextView) solo.getView(R.id.rider_main_driver_name);
+        assertEquals("testDriver", text.getText());
+        text = (TextView) solo.getView(R.id.rider_main_driver_email);
+        assertEquals("testDriver@driver.com", text.getText());
+
+        //now finish the ride
         solo.clickOnView(solo.getView(R.id.driver_complete_ride_button));
-        solo.clickOnView(solo.getView(R.id.rider_complete_ride_button));
+        solo.clickOnView(solo.getView(android.R.id.button1));
 
         //ensure that ride is finished
         text = (TextView) solo.getView(R.id.driver_status);
