@@ -85,16 +85,15 @@ public class RequestOfferedFragment extends Fragment {
                 userLabelTextView.setText("Driver: ");
 
                 // Set values of info box
-                ((MainActivity) getActivity()).userController.getUser(rideRequest.getDriver(),
-                        new Callback<Map<String, Object>>() {
-                            @Override
-                            public void myResponseCallback(Map<String, Object> result) {
-                                User driver = (User) result.get("user");
-                                usernameTextView.setText(driver.getUsername());
-                                usernameTextView.setPaintFlags(usernameTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-                                usernameTextView.setOnClickListener(new NameOnClickListener(getActivity(), role, driver));
-                            }
-                        });
+                userController.getUser(rideRequest.getDriver(), new Callback<Map<String, Object>>() {
+                    @Override
+                    public void myResponseCallback(Map<String, Object> result) {
+                        User driver = (User) result.get("user");
+                        usernameTextView.setText(driver.getUsername());
+                        usernameTextView.setPaintFlags(usernameTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                        usernameTextView.setOnClickListener(new NameOnClickListener(getActivity(), userController, role, driver));
+                    }
+                });
 
                 // Rider can click Accept or Decline to the driver's offer
                 acceptOfferButton.setOnClickListener(new View.OnClickListener()
@@ -102,7 +101,6 @@ public class RequestOfferedFragment extends Fragment {
                     @Override
                     public void onClick(View v)
                     {
-                        // TODO: Leave driver attached to request on firebase and set request status to ACCEPTED
                         rideRequest.setStatus(RequestStatus.ACCEPTED);
                         rideController.updateRideRequest(rideRequest);
                     }
@@ -113,7 +111,6 @@ public class RequestOfferedFragment extends Fragment {
                     @Override
                     public void onClick(View v)
                     {
-                        // TODO: Request status returns to PENDING and remove driver from request on Firebase
                         rideRequest.setStatus(RequestStatus.PENDING);
                         userController.removeUserCurrentRequestId(rideRequest.getDriver());
                         rideRequest.setDriver(null);
@@ -127,16 +124,15 @@ public class RequestOfferedFragment extends Fragment {
                 userLabelTextView.setText("Rider: ");
 
                 // Set values of info box
-                ((MainActivity) getActivity()).userController.getUser(rideRequest.getRider(),
-                        new Callback<Map<String, Object>>() {
-                            @Override
-                            public void myResponseCallback(Map<String, Object> result) {
-                                User rider = (User) result.get("user");
-                                usernameTextView.setText(rider.getUsername());
-                                usernameTextView.setPaintFlags(usernameTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-                                usernameTextView.setOnClickListener(new NameOnClickListener(getActivity(), role, rider));
-                            }
-                        });
+                userController.getUser(rideRequest.getRider(), new Callback<Map<String, Object>>() {
+                    @Override
+                    public void myResponseCallback(Map<String, Object> result) {
+                        User rider = (User) result.get("user");
+                        usernameTextView.setText(rider.getUsername());
+                        usernameTextView.setPaintFlags(usernameTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                        usernameTextView.setOnClickListener(new NameOnClickListener(getActivity(), userController, role, rider));
+                    }
+                });
 
                 // Show decline/accept offer buttons only for Riders
                 acceptOfferButton.setVisibility(View.INVISIBLE);

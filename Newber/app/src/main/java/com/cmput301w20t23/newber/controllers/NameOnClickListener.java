@@ -24,6 +24,7 @@ public class NameOnClickListener implements View.OnClickListener {
     /**
      * The Role.
      */
+    private UserController userController;
     private Context context;
     private String role;
     private User user;
@@ -34,8 +35,9 @@ public class NameOnClickListener implements View.OnClickListener {
      * @param role      the user's role
      * @param user      the user whose profile we will show
      */
-    public NameOnClickListener(Context context, String role, User user) {
+    public NameOnClickListener(Context context, UserController userController, String role, User user) {
         this.context = context;
+        this.userController = userController;
         this.role = role;
         this.user = user;
     }
@@ -72,8 +74,7 @@ public class NameOnClickListener implements View.OnClickListener {
             final TextView upvotes = dialogView.findViewById(R.id.upvotes);
             final TextView downvotes = dialogView.findViewById(R.id.downvotes);
 
-            UserController uc = new UserController(context);
-            uc.getRating(user.getUid(), new Callback<Rating>() {
+            userController.getRating(user.getUid(), new Callback<Rating>() {
                 @Override
                 public void myResponseCallback(Rating result) {
                     upvotes.setText(Integer.toString(result.getUpvotes()));

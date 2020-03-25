@@ -86,21 +86,15 @@ public class RequestAcceptedFragment extends Fragment {
                 button.setBackgroundColor(Color.LTGRAY);
                 button.setText("Cancel");
 
-                ((MainActivity) getActivity()).userController.getUser(rideRequest.getDriver(),
-                        new Callback<Map<String, Object>>() {
-                            @Override
-                            public void myResponseCallback(Map<String, Object> result) {
-                                driver = (User) result.get("user");
-                                nameTextView.setText(driver.getUsername());
-                                phoneTextView.setText(driver.getPhone());
-                                emailTextView.setText(driver.getEmail());
-                            }
-                        });
-
-//                // Set values of info box
-//                nameTextView.setText(rideRequest.getDriver().getUsername());
-//                phoneTextView.setText(rideRequest.getDriver().getPhone());
-//                emailTextView.setText(rideRequest.getDriver().getEmail());
+                userController.getUser(rideRequest.getDriver(), new Callback<Map<String, Object>>() {
+                    @Override
+                    public void myResponseCallback(Map<String, Object> result) {
+                        driver = (User) result.get("user");
+                        nameTextView.setText(driver.getUsername());
+                        phoneTextView.setText(driver.getPhone());
+                        emailTextView.setText(driver.getEmail());
+                    }
+                });
 
                 button.setOnClickListener(new View.OnClickListener()
                 {
@@ -160,9 +154,6 @@ public class RequestAcceptedFragment extends Fragment {
 //                    }
 //                });
 
-                // Bring up profile when name is clicked
-//                nameTextView.setOnClickListener(new NameOnClickListener(role, rideRequest.getDriver()));
-
                 break;
 
             case "Driver": // Rider Picked Up button
@@ -170,35 +161,27 @@ public class RequestAcceptedFragment extends Fragment {
                 button.setText("Rider picked up");
 
                 // Set values of info box
-                ((MainActivity) getActivity()).userController.getUser(rideRequest.getDriver(),
-                        new Callback<Map<String, Object>>() {
-                            @Override
-                            public void myResponseCallback(Map<String, Object> result) {
-                                rider = (User) result.get("user");
-                                nameTextView.setText(rider.getUsername());
-                                phoneTextView.setText(rider.getPhone());
-                                emailTextView.setText(rider.getEmail());
-                                setUpNameTextView(nameTextView, rider);
-                            }
-                        });
-
-//                nameTextView.setText(rideRequest.getRider().getUsername());
-//                phoneTextView.setText(rideRequest.getRider().getPhone());
-//                emailTextView.setText(rideRequest.getRider().getEmail());
+                userController.getUser(rideRequest.getDriver(), new Callback<Map<String, Object>>() {
+                    @Override
+                    public void myResponseCallback(Map<String, Object> result) {
+                        rider = (User) result.get("user");
+                        nameTextView.setText(rider.getUsername());
+                        phoneTextView.setText(rider.getPhone());
+                        emailTextView.setText(rider.getEmail());
+                        setUpNameTextView(nameTextView, rider);
+                    }
+                });
 
                 button.setOnClickListener(new View.OnClickListener()
                 {
                     @Override
                     public void onClick(View v)
                     {
-                        // TODO: If driver, set request status to IN_PROGRESS
                         rideRequest.setStatus(RequestStatus.IN_PROGRESS);
                         rideController.updateRideRequest(rideRequest);
                     }
                 });
 
-                // Bring up profile when name is clicked
-//                nameTextView.setOnClickListener(new NameOnClickListener(role, rideRequest.getRider()));
                 break;
         }
 
@@ -227,7 +210,7 @@ public class RequestAcceptedFragment extends Fragment {
     }
 
     public void setUpNameTextView(TextView nameTextView, User user) {
-        nameTextView.setOnClickListener(new NameOnClickListener(getActivity(), role, user));
+        nameTextView.setOnClickListener(new NameOnClickListener(getActivity(), userController, role, user));
     }
 
     /**
@@ -235,7 +218,6 @@ public class RequestAcceptedFragment extends Fragment {
      * appropriate button is clicked.
      */
     public void goToCallScreen(User user) {
-        // TODO: replace dummy phone with driver's phone
         Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + user.getPhone()));
         this.startActivity(callIntent);
     }
@@ -245,7 +227,6 @@ public class RequestAcceptedFragment extends Fragment {
      * appropriate button is clicked.
      */
     public void goToMailScreen(User user) {
-        // TODO: replace dummy email with driver's email
         Intent mailIntent = new Intent(Intent.ACTION_SEND);
         mailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {user.getEmail()});
         mailIntent.setType("message/rfc822");

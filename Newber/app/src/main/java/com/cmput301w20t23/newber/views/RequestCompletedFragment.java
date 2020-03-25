@@ -65,7 +65,7 @@ public class RequestCompletedFragment extends Fragment {
         fareTextView.setText(Double.toString(rideRequest.getCost()));
 
         // Set driver box information
-        (((MainActivity) getActivity())).userController.getUser(rideRequest.getDriver(), new Callback<Map<String, Object>>() {
+        userController.getUser(rideRequest.getDriver(), new Callback<Map<String, Object>>() {
             @Override
             public void myResponseCallback(Map<String, Object> result) {
                 User driver = (User) result.get("user");
@@ -74,10 +74,6 @@ public class RequestCompletedFragment extends Fragment {
                 emailTextView.setText(driver.getEmail());
             }
         });
-
-//        nameTextView.setText(rideRequest.getDriver().getUsername());
-//        phoneTextView.setText(rideRequest.getDriver().getPhone());
-//        emailTextView.setText(rideRequest.getDriver().getEmail());
 
         completeRequestButton.setOnClickListener(new View.OnClickListener()
         {
