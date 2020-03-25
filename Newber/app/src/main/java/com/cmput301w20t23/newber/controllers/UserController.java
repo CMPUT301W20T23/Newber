@@ -243,7 +243,8 @@ public class UserController {
 
     /**
      * Updates user entry with new currentRequestId
-     * @param user user model
+     * @param uid user id
+     * @param requestId ride request id
      */
     public void updateUserCurrentRequestId(String uid, String requestId) {
         this.databaseAdapter.setUserCurrentRequestId(uid, requestId);
@@ -251,7 +252,7 @@ public class UserController {
 
     /**
      * Updates user entry with contents of the user
-     * @param uid user ID
+     * @param uid user id
      */
     public void removeUserCurrentRequestId(String uid) {
         this.databaseAdapter.setUserCurrentRequestId(uid, "");
@@ -280,5 +281,9 @@ public class UserController {
         }
 
         this.databaseAdapter.updateUserBalance(user.getUid(), user.getBalance());
+    }
+
+    public void updateRating(String uid, final Rating rating) {
+        this.databaseAdapter.updateRating(uid, rating);
     }
 }

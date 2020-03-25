@@ -22,4 +22,8 @@
     <string name="create_request_button_txt">Create a request</string>
     <string name="rider_pending_request_msg">Waiting for a driver to accept the request...</string>
     <string name="confirm_and_pay">Confirm and Pay</string>
+    <string name="rating_prompt">How did your driver do?</string>
+    <string name="thumb_down_rate_description">Give driver bad rating</string>
+    <string name="thumb_up_rate_description">Give driver good rating</string>
+    <string name="skip_rating_button_text">Skip rating</string>
 </resources>

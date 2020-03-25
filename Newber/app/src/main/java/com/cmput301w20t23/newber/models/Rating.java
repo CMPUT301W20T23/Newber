@@ -59,6 +59,16 @@ public class Rating {
     }
 
     /**
+     * Upvote, meaning upvotes count increases by 1.
+     */
+    public void upvote() { this.upvotes += 1; }
+
+    /**
+     * Downvote, meaning downvotes count decreases by 1.
+     */
+    public void downvote() { this.downvotes += 1; }
+
+    /**
      * Calculate the driver's rating as a percent.
      *
      * @return the driver's rating as a percent
