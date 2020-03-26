@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -27,6 +28,7 @@ import com.cmput301w20t23.newber.models.User;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -69,15 +71,14 @@ public class RequestAcceptedFragment extends Fragment {
         TextView pickupLocationTextView = view.findViewById(R.id.pickup_location);
         TextView dropoffLocationTextView = view.findViewById(R.id.dropoff_location);
         TextView fareTextView = view.findViewById(R.id.ride_fare);
-        final TextView nameTextView = view.findViewById(R.id.rider_main_driver_name);
-        final TextView phoneTextView = view.findViewById(R.id.rider_main_driver_phone);
-        final TextView emailTextView = view.findViewById(R.id.rider_main_driver_email);
+        TextView userLabelTextView = view.findViewById(R.id.user_label);
+        final TextView usernameTextView = view.findViewById(R.id.username);
         Button button = view.findViewById(R.id.request_accepted_button);
 
         // Set view elements
         pickupLocationTextView.setText(rideRequest.getStartLocation().getName());
         dropoffLocationTextView.setText(rideRequest.getEndLocation().getName());
-        fareTextView.setText(Double.toString(rideRequest.getCost()));
+        fareTextView.setText(String.format(Locale.US, "$%.2f", rideRequest.getCost()));
 
         // Change UI based on role
         switch(role)
@@ -86,13 +87,16 @@ public class RequestAcceptedFragment extends Fragment {
                 button.setBackgroundColor(Color.LTGRAY);
                 button.setText("Cancel");
 
+                userLabelTextView.setText("Driver: ");
+
+                // Set values of info box
                 userController.getUser(rideRequest.getDriver(), new Callback<Map<String, Object>>() {
                     @Override
                     public void myResponseCallback(Map<String, Object> result) {
-                        driver = (User) result.get("user");
-                        nameTextView.setText(driver.getUsername());
-                        phoneTextView.setText(driver.getPhone());
-                        emailTextView.setText(driver.getEmail());
+                        User driver = (User) result.get("user");
+                        usernameTextView.setText(driver.getUsername());
+                        usernameTextView.setPaintFlags(usernameTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                        usernameTextView.setOnClickListener(new NameOnClickListener(getActivity(), userController, role, driver));
                     }
                 });
 
@@ -101,8 +105,6 @@ public class RequestAcceptedFragment extends Fragment {
                     @Override
                     public void onClick(View v)
                     {
-                        // If rider, remove driver from request and set status to PENDING
-//                        rideRequest.getDriver().setCurrentRequestId("");
 
                         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
                         dialogBuilder.setTitle("Cancel Ride");
@@ -119,7 +121,6 @@ public class RequestAcceptedFragment extends Fragment {
                                 rideController.updateRideRequest(rideRequest);
 
                                 setUpButtons(view);
-                                setUpNameTextView(nameTextView, driver);
                             }
                         });
 
@@ -160,15 +161,16 @@ public class RequestAcceptedFragment extends Fragment {
                 button.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.bannerYellow));
                 button.setText("Rider picked up");
 
+                userLabelTextView.setText("Rider: ");
+
                 // Set values of info box
-                userController.getUser(rideRequest.getDriver(), new Callback<Map<String, Object>>() {
+                userController.getUser(rideRequest.getRider(), new Callback<Map<String, Object>>() {
                     @Override
                     public void myResponseCallback(Map<String, Object> result) {
-                        rider = (User) result.get("user");
-                        nameTextView.setText(rider.getUsername());
-                        phoneTextView.setText(rider.getPhone());
-                        emailTextView.setText(rider.getEmail());
-                        setUpNameTextView(nameTextView, rider);
+                        User rider = (User) result.get("user");
+                        usernameTextView.setText(rider.getUsername());
+                        usernameTextView.setPaintFlags(usernameTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                        usernameTextView.setOnClickListener(new NameOnClickListener(getActivity(), userController, role, rider));
                     }
                 });
 
@@ -184,7 +186,6 @@ public class RequestAcceptedFragment extends Fragment {
 
                 break;
         }
-
         return view;
     }
 
@@ -207,10 +208,6 @@ public class RequestAcceptedFragment extends Fragment {
                 goToMailScreen(driver);
             }
         });
-    }
-
-    public void setUpNameTextView(TextView nameTextView, User user) {
-        nameTextView.setOnClickListener(new NameOnClickListener(getActivity(), userController, role, user));
     }
 
     /**
