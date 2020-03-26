@@ -8,7 +8,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="QR Code Generation:"
-        android:textSize="30dp"/>
+        android:textSize="30dp"
+        android:id="@+id/testqr"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -25,7 +26,12 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/qr_image"/>
+        android:id="@+id/qr_image" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/qr_picture"/>
 
 
 
