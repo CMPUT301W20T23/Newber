@@ -38,8 +38,6 @@ public class RequestAcceptedFragment extends Fragment {
 
     private RideRequest rideRequest;
     private String role;
-    private User driver;
-    private User rider;
 
     /**
      * Instantiate User and RideRequest controllers
@@ -98,6 +96,8 @@ public class RequestAcceptedFragment extends Fragment {
                     }
                 });
 
+                setUpContactButtons(view);
+
                 button.setOnClickListener(new View.OnClickListener()
                 {
                     @Override
@@ -117,8 +117,6 @@ public class RequestAcceptedFragment extends Fragment {
                                 rideRequest.setDriver(null);
                                 rideRequest.setStatus(RequestStatus.PENDING);
                                 rideController.updateRideRequest(rideRequest);
-
-                                setUpButtons(view);
                             }
                         });
 
@@ -133,25 +131,6 @@ public class RequestAcceptedFragment extends Fragment {
                         dialog.show();
                     }
                 });
-
-//                ImageButton callButton = view.findViewById(R.id.call_button);
-//                ImageButton emailButton = view.findViewById(R.id.email_button);
-//                callButton.setVisibility(View.VISIBLE);
-//                emailButton.setVisibility(View.VISIBLE);
-//
-//                callButton.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        goToCallScreen(rideRequest.getDriver());
-//                    }
-//                });
-//
-//                emailButton.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        goToMailScreen(rideRequest.getDriver());
-//                    }
-//                });
 
                 break;
 
@@ -187,7 +166,7 @@ public class RequestAcceptedFragment extends Fragment {
         return view;
     }
 
-    public void setUpButtons(View view) {
+    public void setUpContactButtons(View view) {
         ImageButton callButton = view.findViewById(R.id.call_button);
         ImageButton emailButton = view.findViewById(R.id.email_button);
         callButton.setVisibility(View.VISIBLE);
@@ -196,14 +175,14 @@ public class RequestAcceptedFragment extends Fragment {
         callButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                goToCallScreen(driver);
+                goToCallScreen(rideRequest.getDriver());
             }
         });
 
         emailButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                goToMailScreen(driver);
+                goToMailScreen(rideRequest.getDriver());
             }
         });
     }
@@ -212,20 +191,32 @@ public class RequestAcceptedFragment extends Fragment {
      * Opens Android call screen and populates it with the driver's phone number when the
      * appropriate button is clicked.
      */
-    public void goToCallScreen(User user) {
-        Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + user.getPhone()));
-        this.startActivity(callIntent);
+    public void goToCallScreen(String driverId) {
+        userController.getUser(driverId, new Callback<Map<String, Object>>() {
+            @Override
+            public void myResponseCallback(Map<String, Object> result) {
+                User driver = (User) result.get("user");
+                Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + driver.getPhone()));
+                getActivity().startActivity(callIntent);
+            }
+        });
     }
 
     /**
      * Opens Android mail screen and populates it with the driver's email address when the
      * appropriate button is clicked.
      */
-    public void goToMailScreen(User user) {
-        Intent mailIntent = new Intent(Intent.ACTION_SEND);
-        mailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {user.getEmail()});
-        mailIntent.setType("message/rfc822");
-        this.startActivity(Intent.createChooser(mailIntent,
-                "Send email using: "));
+    public void goToMailScreen(String driverId) {
+        userController.getUser(driverId, new Callback<Map<String, Object>>() {
+            @Override
+            public void myResponseCallback(Map<String, Object> result) {
+                User driver = (User) result.get("user");
+                Intent mailIntent = new Intent(Intent.ACTION_SEND);
+                mailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {driver.getEmail()});
+                mailIntent.setType("message/rfc822");
+                getActivity().startActivity(Intent.createChooser(mailIntent,
+                        "Send email using: "));
+            }
+        });
     }
 }
