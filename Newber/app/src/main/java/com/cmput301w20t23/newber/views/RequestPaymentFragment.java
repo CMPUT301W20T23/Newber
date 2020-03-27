@@ -69,6 +69,7 @@ public class RequestPaymentFragment extends Fragment {
         qrPicture = (ImageView) view.findViewById(R.id.qr_picture);
 
         if(role.equals("Rider")){
+            //TODO: change to invisible once testing is finished
             scan.setVisibility(View.VISIBLE);
         }
         else if(role.equals("Driver")) {
@@ -93,6 +94,8 @@ public class RequestPaymentFragment extends Fragment {
         scan.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
+
+
                 dispatchTakePictureIntent();
                 //onActivityResult runs automatically after dispatchTakePictureIntent
                 BitmapDrawable drawable = (BitmapDrawable) qrPicture.getDrawable();
@@ -105,6 +108,7 @@ public class RequestPaymentFragment extends Fragment {
                     {
                         Barcode code = barcodes.valueAt(0);
                         TextView text = (TextView) view.findViewById(R.id.testqr);
+                        //TODO: add database handling to transfer money
 
                     }
                 }
@@ -117,7 +121,8 @@ public class RequestPaymentFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if(getActivity() != null) {
-            detector = new BarcodeDetector.Builder(getActivity())
+            //TODO: find workaround for fragment's getActivity() returning null
+            detector = new BarcodeDetector.Builder(getContext())
                     .setBarcodeFormats(Barcode.DATA_MATRIX | Barcode.QR_CODE)
                     .build();
         }
