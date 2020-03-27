@@ -1,8 +1,5 @@
 package com.cmput301w20t23.newber.views;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,14 +14,17 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.cmput301w20t23.newber.R;
 import com.cmput301w20t23.newber.controllers.UserController;
 import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.Rating;
 import com.cmput301w20t23.newber.models.User;
-//import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Map;
+
+//import com.google.firebase.auth.FirebaseAuth;
 
 /**
  * The Android Activity that contains the user's profile.

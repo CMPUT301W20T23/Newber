@@ -2,19 +2,17 @@ package com.cmput301w20t23.newber.controllers;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.util.Patterns;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.cmput301w20t23.newber.database.DatabaseAdapter;
 import com.cmput301w20t23.newber.helpers.Callback;
-import com.cmput301w20t23.newber.models.Driver;
 import com.cmput301w20t23.newber.models.Rating;
-import com.cmput301w20t23.newber.models.Rider;
 import com.cmput301w20t23.newber.models.User;
 import com.cmput301w20t23.newber.views.MainActivity;
 import com.cmput301w20t23.newber.views.ProfileActivity;
-import com.cmput301w20t23.newber.views.SignUpActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -25,11 +23,7 @@ import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import androidx.annotation.NonNull;
-
 import java.util.Map;
-
-import static android.content.ContentValues.TAG;
 
 /**
  * Controller class for handling all user-related data processing.

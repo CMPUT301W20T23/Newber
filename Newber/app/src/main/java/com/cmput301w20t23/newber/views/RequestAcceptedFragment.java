@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,20 +14,19 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+
 import com.cmput301w20t23.newber.R;
 import com.cmput301w20t23.newber.controllers.NameOnClickListener;
 import com.cmput301w20t23.newber.controllers.RideController;
 import com.cmput301w20t23.newber.controllers.UserController;
 import com.cmput301w20t23.newber.helpers.Callback;
-import com.cmput301w20t23.newber.models.Driver;
 import com.cmput301w20t23.newber.models.RequestStatus;
 import com.cmput301w20t23.newber.models.RideRequest;
-import com.cmput301w20t23.newber.models.Rider;
 import com.cmput301w20t23.newber.models.User;
 
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -38,8 +38,6 @@ public class RequestAcceptedFragment extends Fragment {
 
     private RideRequest rideRequest;
     private String role;
-    private User driver;
-    private User rider;
 
     /**
      * Instantiate User and RideRequest controllers
@@ -69,15 +67,14 @@ public class RequestAcceptedFragment extends Fragment {
         TextView pickupLocationTextView = view.findViewById(R.id.pickup_location);
         TextView dropoffLocationTextView = view.findViewById(R.id.dropoff_location);
         TextView fareTextView = view.findViewById(R.id.ride_fare);
-        final TextView nameTextView = view.findViewById(R.id.rider_main_driver_name);
-        final TextView phoneTextView = view.findViewById(R.id.rider_main_driver_phone);
-        final TextView emailTextView = view.findViewById(R.id.rider_main_driver_email);
+        TextView userLabelTextView = view.findViewById(R.id.user_label);
+        final TextView usernameTextView = view.findViewById(R.id.username);
         Button button = view.findViewById(R.id.request_accepted_button);
 
         // Set view elements
         pickupLocationTextView.setText(rideRequest.getStartLocation().getName());
         dropoffLocationTextView.setText(rideRequest.getEndLocation().getName());
-        fareTextView.setText(Double.toString(rideRequest.getCost()));
+        fareTextView.setText(String.format(Locale.US, "$%.2f", rideRequest.getCost()));
 
         // Change UI based on role
         switch(role)
@@ -86,29 +83,26 @@ public class RequestAcceptedFragment extends Fragment {
                 button.setBackgroundColor(Color.LTGRAY);
                 button.setText("Cancel");
 
-                ((MainActivity) getActivity()).userController.getUser(rideRequest.getDriver(),
-                        new Callback<Map<String, Object>>() {
-                            @Override
-                            public void myResponseCallback(Map<String, Object> result) {
-                                driver = (User) result.get("user");
-                                nameTextView.setText(driver.getUsername());
-                                phoneTextView.setText(driver.getPhone());
-                                emailTextView.setText(driver.getEmail());
-                            }
-                        });
+                userLabelTextView.setText("Driver: ");
 
-//                // Set values of info box
-//                nameTextView.setText(rideRequest.getDriver().getUsername());
-//                phoneTextView.setText(rideRequest.getDriver().getPhone());
-//                emailTextView.setText(rideRequest.getDriver().getEmail());
+                // Set values of info box
+                userController.getUser(rideRequest.getDriver(), new Callback<Map<String, Object>>() {
+                    @Override
+                    public void myResponseCallback(Map<String, Object> result) {
+                        User driver = (User) result.get("user");
+                        usernameTextView.setText(driver.getUsername());
+                        usernameTextView.setPaintFlags(usernameTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                        usernameTextView.setOnClickListener(new NameOnClickListener(getActivity(), userController, role, driver));
+                    }
+                });
+
+                setUpContactButtons(view);
 
                 button.setOnClickListener(new View.OnClickListener()
                 {
                     @Override
                     public void onClick(View v)
                     {
-                        // If rider, remove driver from request and set status to PENDING
-//                        rideRequest.getDriver().setCurrentRequestId("");
 
                         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
                         dialogBuilder.setTitle("Cancel Ride");
@@ -123,9 +117,6 @@ public class RequestAcceptedFragment extends Fragment {
                                 rideRequest.setDriver(null);
                                 rideRequest.setStatus(RequestStatus.PENDING);
                                 rideController.updateRideRequest(rideRequest);
-
-                                setUpButtons(view);
-                                setUpNameTextView(nameTextView, driver);
                             }
                         });
 
@@ -141,115 +132,91 @@ public class RequestAcceptedFragment extends Fragment {
                     }
                 });
 
-//                ImageButton callButton = view.findViewById(R.id.call_button);
-//                ImageButton emailButton = view.findViewById(R.id.email_button);
-//                callButton.setVisibility(View.VISIBLE);
-//                emailButton.setVisibility(View.VISIBLE);
-//
-//                callButton.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        goToCallScreen(rideRequest.getDriver());
-//                    }
-//                });
-//
-//                emailButton.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        goToMailScreen(rideRequest.getDriver());
-//                    }
-//                });
-
-                // Bring up profile when name is clicked
-//                nameTextView.setOnClickListener(new NameOnClickListener(role, rideRequest.getDriver()));
-
                 break;
 
             case "Driver": // Rider Picked Up button
                 button.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.bannerYellow));
                 button.setText("Rider picked up");
 
-                // Set values of info box
-                ((MainActivity) getActivity()).userController.getUser(rideRequest.getDriver(),
-                        new Callback<Map<String, Object>>() {
-                            @Override
-                            public void myResponseCallback(Map<String, Object> result) {
-                                rider = (User) result.get("user");
-                                nameTextView.setText(rider.getUsername());
-                                phoneTextView.setText(rider.getPhone());
-                                emailTextView.setText(rider.getEmail());
-                                setUpNameTextView(nameTextView, rider);
-                            }
-                        });
+                userLabelTextView.setText("Rider: ");
 
-//                nameTextView.setText(rideRequest.getRider().getUsername());
-//                phoneTextView.setText(rideRequest.getRider().getPhone());
-//                emailTextView.setText(rideRequest.getRider().getEmail());
+                // Set values of info box
+                userController.getUser(rideRequest.getRider(), new Callback<Map<String, Object>>() {
+                    @Override
+                    public void myResponseCallback(Map<String, Object> result) {
+                        User rider = (User) result.get("user");
+                        usernameTextView.setText(rider.getUsername());
+                        usernameTextView.setPaintFlags(usernameTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                        usernameTextView.setOnClickListener(new NameOnClickListener(getActivity(), userController, role, rider));
+                    }
+                });
 
                 button.setOnClickListener(new View.OnClickListener()
                 {
                     @Override
                     public void onClick(View v)
                     {
-                        // TODO: If driver, set request status to IN_PROGRESS
                         rideRequest.setStatus(RequestStatus.IN_PROGRESS);
                         rideController.updateRideRequest(rideRequest);
                     }
                 });
 
-                // Bring up profile when name is clicked
-//                nameTextView.setOnClickListener(new NameOnClickListener(role, rideRequest.getRider()));
                 break;
         }
-
         return view;
     }
 
-    public void setUpButtons(View view) {
-        ImageButton callButton = view.findViewById(R.id.call_button);
-        ImageButton emailButton = view.findViewById(R.id.email_button);
+    public void setUpContactButtons(View view) {
+        Button callButton = view.findViewById(R.id.call_button);
+        Button emailButton = view.findViewById(R.id.email_button);
         callButton.setVisibility(View.VISIBLE);
         emailButton.setVisibility(View.VISIBLE);
 
         callButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                goToCallScreen(driver);
+                goToCallScreen(rideRequest.getDriver());
             }
         });
 
         emailButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                goToMailScreen(driver);
+                goToMailScreen(rideRequest.getDriver());
             }
         });
-    }
-
-    public void setUpNameTextView(TextView nameTextView, User user) {
-        nameTextView.setOnClickListener(new NameOnClickListener(role, user));
     }
 
     /**
      * Opens Android call screen and populates it with the driver's phone number when the
      * appropriate button is clicked.
      */
-    public void goToCallScreen(User user) {
-        // TODO: replace dummy phone with driver's phone
-        Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + user.getPhone()));
-        this.startActivity(callIntent);
+    public void goToCallScreen(String driverId) {
+        userController.getUser(driverId, new Callback<Map<String, Object>>() {
+            @Override
+            public void myResponseCallback(Map<String, Object> result) {
+                User driver = (User) result.get("user");
+                Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + driver.getPhone()));
+                getActivity().startActivity(callIntent);
+            }
+        });
     }
 
     /**
      * Opens Android mail screen and populates it with the driver's email address when the
      * appropriate button is clicked.
      */
-    public void goToMailScreen(User user) {
-        // TODO: replace dummy email with driver's email
-        Intent mailIntent = new Intent(Intent.ACTION_SEND);
-        mailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {user.getEmail()});
-        mailIntent.setType("message/rfc822");
-        this.startActivity(Intent.createChooser(mailIntent,
-                "Send email using: "));
+    public void goToMailScreen(String driverId) {
+        userController.getUser(driverId, new Callback<Map<String, Object>>() {
+            @Override
+            public void myResponseCallback(Map<String, Object> result) {
+                User driver = (User) result.get("user");
+                Intent mailIntent = new Intent(Intent.ACTION_SEND);
+                mailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {driver.getEmail()});
+                mailIntent.setType("message/rfc822");
+                getActivity().startActivity(Intent.createChooser(mailIntent,
+                        "Send email using: "));
+            }
+        });
     }
 }

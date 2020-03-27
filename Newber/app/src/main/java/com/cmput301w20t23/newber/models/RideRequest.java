@@ -2,8 +2,6 @@ package com.cmput301w20t23.newber.models;
 
 import androidx.annotation.NonNull;
 
-import com.google.android.libraries.places.api.model.Place;
-
 import java.io.Serializable;
 import java.util.UUID;
 

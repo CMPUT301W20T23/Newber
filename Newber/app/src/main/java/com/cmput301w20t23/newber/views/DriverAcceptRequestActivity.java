@@ -1,18 +1,18 @@
 package com.cmput301w20t23.newber.views;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.cmput301w20t23.newber.R;
+import com.cmput301w20t23.newber.controllers.OnMapAndViewReadyListener;
 import com.cmput301w20t23.newber.controllers.RideController;
 import com.cmput301w20t23.newber.controllers.UserController;
 import com.cmput301w20t23.newber.helpers.Callback;
-import com.cmput301w20t23.newber.controllers.OnMapAndViewReadyListener;
 import com.cmput301w20t23.newber.helpers.RouteGetter;
 import com.cmput301w20t23.newber.models.Driver;
 import com.cmput301w20t23.newber.models.RideRequest;
