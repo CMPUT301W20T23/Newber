@@ -1,10 +1,5 @@
 package com.cmput301w20t23.newber.views;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -20,10 +15,15 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.cmput301w20t23.newber.R;
 import com.cmput301w20t23.newber.controllers.RideController;
-import com.cmput301w20t23.newber.helpers.CloseKeyboard;
 import com.cmput301w20t23.newber.helpers.Callback;
+import com.cmput301w20t23.newber.helpers.CloseKeyboard;
 import com.cmput301w20t23.newber.helpers.RouteGetter;
 import com.cmput301w20t23.newber.models.Location;
 import com.cmput301w20t23.newber.models.Rider;

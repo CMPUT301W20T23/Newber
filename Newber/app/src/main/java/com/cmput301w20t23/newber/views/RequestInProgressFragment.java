@@ -2,7 +2,6 @@ package com.cmput301w20t23.newber.views;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,19 +10,17 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+
 import com.cmput301w20t23.newber.R;
 import com.cmput301w20t23.newber.controllers.NameOnClickListener;
 import com.cmput301w20t23.newber.controllers.RideController;
 import com.cmput301w20t23.newber.controllers.UserController;
 import com.cmput301w20t23.newber.helpers.Callback;
-import com.cmput301w20t23.newber.models.Driver;
 import com.cmput301w20t23.newber.models.RequestStatus;
 import com.cmput301w20t23.newber.models.RideRequest;
-import com.cmput301w20t23.newber.models.Rider;
 import com.cmput301w20t23.newber.models.User;
-
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 
 import java.util.Locale;
 import java.util.Map;
@@ -67,7 +64,7 @@ public class RequestInProgressFragment extends Fragment {
         TextView fareTextView = view.findViewById(R.id.ride_fare);
         TextView userLabelTextView = view.findViewById(R.id.user_label);
         final TextView usernameTextView = view.findViewById(R.id.username);
-        Button completeButton = view.findViewById(R.id.rider_complete_ride_button);
+        Button completeButton = view.findViewById(R.id.driver_complete_ride_button);
 
         // Set view elements
         pickupLocationTextView.setText(rideRequest.getStartLocation().getName());
@@ -87,6 +84,23 @@ public class RequestInProgressFragment extends Fragment {
                         usernameTextView.setText(driver.getUsername());
                         usernameTextView.setPaintFlags(usernameTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
                         usernameTextView.setOnClickListener(new NameOnClickListener(getActivity(), userController, role, driver));
+                    }
+                });
+
+                // Complete ride button only visible by driver; rider hides it
+                completeButton.setVisibility(View.INVISIBLE);
+
+                break;
+
+            case "Driver":
+                // Set values of info box
+                userController.getUser(rideRequest.getRider(), new Callback<Map<String, Object>>() {
+                    @Override
+                    public void myResponseCallback(Map<String, Object> result) {
+                        User rider = (User) result.get("user");
+                        usernameTextView.setText(rider.getUsername());
+                        usernameTextView.setPaintFlags(usernameTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                        usernameTextView.setOnClickListener(new NameOnClickListener(getActivity(), userController, role, rider));
                     }
                 });
 
@@ -125,23 +139,6 @@ public class RequestInProgressFragment extends Fragment {
                         dialog.show();
                     }
                 });
-
-                break;
-
-            case "Driver":
-                // Set values of info box
-                userController.getUser(rideRequest.getRider(), new Callback<Map<String, Object>>() {
-                    @Override
-                    public void myResponseCallback(Map<String, Object> result) {
-                        User rider = (User) result.get("user");
-                        usernameTextView.setText(rider.getUsername());
-                        usernameTextView.setPaintFlags(usernameTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-                        usernameTextView.setOnClickListener(new NameOnClickListener(getActivity(), userController, role, rider));
-                    }
-                });
-
-                // Complete ride button only visible by rider; driver hides it
-                completeButton.setVisibility(View.INVISIBLE);
 
                 break;
         }
