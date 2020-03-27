@@ -167,8 +167,8 @@ public class RequestAcceptedFragment extends Fragment {
     }
 
     public void setUpContactButtons(View view) {
-        ImageButton callButton = view.findViewById(R.id.call_button);
-        ImageButton emailButton = view.findViewById(R.id.email_button);
+        Button callButton = view.findViewById(R.id.call_button);
+        Button emailButton = view.findViewById(R.id.email_button);
         callButton.setVisibility(View.VISIBLE);
         emailButton.setVisibility(View.VISIBLE);
 

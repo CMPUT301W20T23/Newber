@@ -100,35 +100,46 @@
                     android:text="TextView"
                     android:textColor="@color/colorPrimaryDark"/>
 
-                <ImageButton
-                    android:id="@+id/call_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
-                    android:layout_weight="1"
-                    android:backgroundTint="@color/colorPrimaryDark"
-                    android:src="@drawable/ic_local_phone_white_24dp"
-                    android:visibility="gone">
-
-                </ImageButton>
-
-                <ImageButton
-                    android:id="@+id/email_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:backgroundTint="@color/colorPrimaryDark"
-                    android:src="@drawable/ic_email_white_24dp"
-                    android:visibility="gone">
-
-                </ImageButton>
-
             </LinearLayout>
 
         </LinearLayout>
 
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/call_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:text="Call Driver"
+            android:textColor="@color/colorWhite"
+            android:drawableLeft="@drawable/ic_local_phone_white_24dp"
+            android:visibility="gone">
+
+        </Button>
+
+        <Button
+            android:id="@+id/email_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="10dp"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:text="Email Driver"
+            android:textColor="@color/colorWhite"
+            android:drawableLeft="@drawable/ic_email_white_24dp"
+            android:visibility="gone">
+
+        </Button>
+
+    </LinearLayout>
     <Button
         android:id="@+id/request_accepted_button"
         android:layout_width="match_parent"
