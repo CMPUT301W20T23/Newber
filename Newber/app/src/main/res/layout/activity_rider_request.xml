@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context=".views.RiderRequestActivity"
     android:orientation="vertical"
-    android:background="@color/quantum_grey"
+    android:background="@color/quantum_grey300"
     android:id="@+id/main_layout">
 
     <LinearLayout
@@ -18,7 +18,7 @@
         <TextView
             android:layout_width="70dp"
             android:layout_height="match_parent"
-            android:background="@color/quantum_grey"
+            android:background="@color/quantum_grey300"
             android:gravity="center_vertical"
             android:padding="5dp"
             android:text="Start:"
@@ -53,7 +53,7 @@
         <TextView
             android:layout_width="70dp"
             android:layout_height="match_parent"
-            android:background="@color/quantum_grey"
+            android:background="@color/quantum_grey300"
             android:padding="5dp"
             android:text="End:"
             android:gravity="center_vertical"
@@ -88,7 +88,7 @@
         <TextView
             android:layout_width="70dp"
             android:layout_height="match_parent"
-            android:background="@color/quantum_grey"
+            android:background="@color/quantum_grey300"
             android:padding="5dp"
             android:text="Fare:"
             android:textColor="@color/colorBlack"
@@ -150,7 +150,7 @@
             android:padding="12dp"
             android:text="Cancel"
             android:textColor="@color/colorBlack"
-            android:background="@color/colorWhite"
+            android:background="@color/quantum_grey300"
             android:onClick="cancelRiderRequest"/>
 
         <Button

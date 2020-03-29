@@ -294,7 +294,7 @@ public class DriverRequestActivity extends AppCompatActivity implements OnMapRea
         LatLng northeastCorner =
                 SphericalUtil.computeOffset(latLng, distanceCenterToCorner, 45.0);
         final LatLngBounds mapBounds = new LatLngBounds(southwestCorner, northeastCorner);
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(mapBounds, 100));
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(mapBounds, 0));
 
         rideController.getPendingRideRequests(new Callback<ArrayList<RideRequest>>() {
             @Override
