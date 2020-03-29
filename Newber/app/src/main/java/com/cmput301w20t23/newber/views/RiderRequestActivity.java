@@ -95,8 +95,8 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
     public String getNameFromLatLng(LatLng latLng) {
         List<Address> addresses;
 
-        if (RiderRequestActivity.this.geocoder == null)
-            RiderRequestActivity.this.geocoder = new Geocoder(RiderRequestActivity.this, Locale.getDefault());
+//        if (RiderRequestActivity.this.geocoder == null)
+//            RiderRequestActivity.this.geocoder = new Geocoder(RiderRequestActivity.this, Locale.getDefault());
 
         try {
             addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
@@ -476,6 +476,8 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rider_request);
         mainLayout = findViewById(R.id.main_layout);
+
+        this.geocoder = new Geocoder(RiderRequestActivity.this, Locale.getDefault());
 
         // Start the Map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
