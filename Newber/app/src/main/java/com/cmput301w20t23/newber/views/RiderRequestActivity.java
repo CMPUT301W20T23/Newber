@@ -161,10 +161,9 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         startAutocompleteSupportFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull Place place) {
-                String name = getNameFromLatLng(place.getLatLng());
+                String name = place.toString();
                 startLocation.setLocationFromLatLng(place.getLatLng(), name);
                 setStartMarker(place.getLatLng());
-                startAutocompleteSupportFragment.setText(place.toString());
 
                 if (startLocation.toString() != null && endLocation.toString() != null) {
                     RouteGetter.getRoute(startLocation.toLatLng(), endLocation.toLatLng(),
@@ -205,7 +204,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         endAutocompleteSupportFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull Place place) {
-                String name = getNameFromLatLng(place.getLatLng());
+                String name = place.toString();
                 endLocation.setLocationFromLatLng(place.getLatLng(), name);
                 setEndMarker(place.getLatLng());
 

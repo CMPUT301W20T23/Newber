@@ -27,7 +27,7 @@ import com.google.zxing.integration.android.IntentResult;
 public class RequestPaymentFragment extends Fragment {
     private RideRequest rideRequest;
     private String role;
-    private Double cost;
+    private String requestId;
 
     private RideController rideController = new RideController();
     private UserController userController = new UserController(this.getContext());
@@ -108,9 +108,9 @@ public class RequestPaymentFragment extends Fragment {
         driverTextView.setVisibility(View.VISIBLE);
         System.out.println("handleRiderQR, driverTextView vis: " + driverTextView.getVisibility());
 
-        cost = rideRequest.getCost();
+        requestId = rideRequest.getRequestId();
         try {
-            userBitmap = encodeAsBitmap(Double.toString(cost));
+            userBitmap = encodeAsBitmap(requestId);
             qrImage.setImageBitmap(userBitmap);
         } catch (Exception e) {
             System.out.println("Error while creating bitmap: " + e.getMessage());
@@ -128,18 +128,4 @@ public class RequestPaymentFragment extends Fragment {
             }
         });
     }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (result != null) {
-            //if qrcode has nothing in it
-            if (result.getContents() == null) {
-                Toast.makeText(getActivity(), "Result Not Found", Toast.LENGTH_LONG).show();
-            } else {
-                System.out.println("Scanned Results: " + result.getContents());
-            }
-        }
-    }
-
 }
