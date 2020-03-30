@@ -119,6 +119,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         statusBanner.setBackgroundColor(ContextCompat.getColor(this, R.color.bannerRed));
                         riderFragment = new RequestPendingFragment(currRequest);
                     } else {
+                        statusBanner.setText("No Request");
+                        statusBanner.setBackgroundColor(Color.LTGRAY);
                         riderFragment = new NoRequestFragment(role, user);
                     }
                     break;
@@ -155,6 +157,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     this.userController.removeUserCurrentRequestId(user.getUid());
 
                     startRatingActivity();
+                    statusBanner.setText("No Request");
+                    statusBanner.setBackgroundColor(Color.LTGRAY);
                     riderFragment = new NoRequestFragment(role, user);
                     break;
             }

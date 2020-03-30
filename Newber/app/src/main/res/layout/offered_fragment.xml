@@ -109,7 +109,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@android:string/cancel" />
+            android:text="Decline" />
 
         <Button
             android:id="@+id/rider_accept_offer_button"
