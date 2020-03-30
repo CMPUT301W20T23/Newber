@@ -151,7 +151,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
                     //Update the User Balance, only going to be for rider side. Since, driver
                     //removes the request once it's completed
-                    this.userController.updateUserBalance(user, role, currRequest);
+                    user.subtractFromBalance(currRequest.getCost());
+
                     user.setCurrentRequestId("");
                     currentRequestId = "";
                     this.userController.removeUserCurrentRequestId(user.getUid());
@@ -226,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 String scannedRequestId = result.getContents();
 
                 if (scannedRequestId.equals(currRequest.getRequestId())) {
-                    this.userController.updateUserBalance(user, role, currRequest);
+                    this.userController.transferBalance(currRequest);
                     this.rideController.finishRideRequest(user, currRequest);
                     currRequest = null;
                 }

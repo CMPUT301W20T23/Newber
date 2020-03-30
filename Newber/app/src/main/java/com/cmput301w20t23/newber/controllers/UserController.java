@@ -271,16 +271,11 @@ public class UserController {
         this.databaseAdapter.getRating(uid ,callback);
     }
 
-    public void updateUserBalance(User user, String role, RideRequest rideRequest) {
+    public void transferBalance(RideRequest rideRequest) {
         double cost = rideRequest.getCost();
 
-        if (role.equals("Rider")) {
-            user.subtractFromBalance(cost);
-        } else {
-            user.addToBalance(cost);
-        }
-
-        this.databaseAdapter.updateUserBalance(user.getUid(), user.getBalance());
+        this.databaseAdapter.incrementUserBalance(rideRequest.getRider(), -1 * cost);
+        this.databaseAdapter.incrementUserBalance(rideRequest.getDriver(), cost);
     }
 
     public void updateRating(String uid, final Rating rating) {

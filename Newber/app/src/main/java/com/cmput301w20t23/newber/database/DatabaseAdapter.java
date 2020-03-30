@@ -15,6 +15,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -359,9 +360,9 @@ public class DatabaseAdapter extends Observable {
                 });
     }
 
-    public void updateUserBalance(String uid, double newBalance) {
+    public void incrementUserBalance(String uid, double increment) {
         users.document(uid)
-                .update("balance", newBalance)
+                .update("balance", FieldValue.increment(increment))
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
