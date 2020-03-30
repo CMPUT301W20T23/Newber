@@ -151,9 +151,10 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     //removes the request once it's completed
                     this.userController.updateUserBalance(user, role, currRequest);
                     user.setCurrentRequestId("");
-                    currRequest = null;
+                    currentRequestId = "";
                     this.userController.removeUserCurrentRequestId(user.getUid());
 
+                    startRatingActivity();
                     riderFragment = new NoRequestFragment(role, user);
                     break;
             }
@@ -162,6 +163,16 @@ public class MainActivity extends AppCompatActivity implements Observer {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.rider_request_details, riderFragment);
         ft.commitAllowingStateLoss();
+    }
+
+    public void startRatingActivity() {
+        // Start Rating Activity
+        Intent ratingIntent = new Intent(this, RatingActivity.class);
+        ratingIntent.putExtra("driverUid", currRequest.getDriver());
+
+        // Set intent to null since there is no need for it anymore
+        currRequest = null;
+        startActivity(ratingIntent);
     }
 
     @Override

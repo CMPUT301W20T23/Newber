@@ -286,6 +286,26 @@ public class DatabaseAdapter extends Observable {
                 });
     }
 
+    public void updateRating(String uid, final Rating rating) {
+        DocumentReference docRef = ratings.document(uid);
+        docRef.set(rating)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        System.out.println("Update rating successful");
+                        setChanged();
+                        notifyObservers(rating);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        System.out.println("Error while updating rating: " + e);
+                        clearChanged();
+                    }
+                });
+    }
+
     public void getRideRequest(String requestId, final Callback<RideRequest> callback) {
         DocumentReference docRef = rideRequests.document(requestId);
 
