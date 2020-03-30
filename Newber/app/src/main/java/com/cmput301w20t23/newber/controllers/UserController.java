@@ -252,7 +252,7 @@ public class UserController {
 
     /**
      * Updates user entry with contents of the user
-     * @param uid user ID
+     * @param uid user id
      */
     public void removeUserCurrentRequestId(String uid) {
         this.databaseAdapter.setUserCurrentRequestId(uid, "");
