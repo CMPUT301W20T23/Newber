@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -22,6 +23,14 @@ import com.cmput301w20t23.newber.models.Rating;
 import com.cmput301w20t23.newber.models.RideRequest;
 import com.cmput301w20t23.newber.models.Rider;
 import com.cmput301w20t23.newber.models.User;
+import com.cmput301w20t23.newber.views.fragments.NoRequestFragment;
+import com.cmput301w20t23.newber.views.fragments.RequestAcceptedFragment;
+import com.cmput301w20t23.newber.views.fragments.RequestInProgressFragment;
+import com.cmput301w20t23.newber.views.fragments.RequestOfferedFragment;
+import com.cmput301w20t23.newber.views.fragments.RequestPaymentFragment;
+import com.cmput301w20t23.newber.views.fragments.RequestPendingFragment;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import java.util.Map;
 import java.util.Observable;
@@ -33,8 +42,8 @@ import java.util.Observer;
  * @author Amy Hou
  */
 public class MainActivity extends AppCompatActivity implements Observer {
-    protected final UserController userController = new UserController(this);
-    protected final RideController rideController = new RideController();
+    private final UserController userController = new UserController(this);
+    private final RideController rideController = new RideController();
 
     /**
      * The user's current ride request.
@@ -42,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
     private RideRequest currRequest; // To be updated when querying db
 
     private String firstName, lastName, username, phone, email, uId, currentRequestId, role;
+    private double balance;
 
     private User user;
 
@@ -50,35 +60,17 @@ public class MainActivity extends AppCompatActivity implements Observer {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Get User object using User Controller
-        this.userController.getUser(new Callback<Map<String, Object>>() {
-            @Override
-            public void myResponseCallback(Map<String, Object> result) {
-                User responseUser = (User) result.get("user");
-                firstName = responseUser.getFirstName();
-                lastName = responseUser.getLastName();
-                username = responseUser.getUsername();
-                phone = responseUser.getPhone();
-                email = responseUser.getEmail();
-                uId = responseUser.getUid();
-                currentRequestId = responseUser.getCurrentRequestId();
-                role = (String) result.get("role");
-                switchRole();
-                displayFragments();
-            }
-        });
-
-        this.rideController.addObserver(this);
+        System.out.println("In onCreate");
     }
 
     public void switchRole() {
         switch (role) {
             case "Rider":
-                user = new Rider(firstName, lastName, username, phone, email, uId, currentRequestId);
+                user = new Rider(firstName, lastName, username, phone, email, uId, currentRequestId, balance);
                 break;
 
             case "Driver":
-                user = new Driver(firstName, lastName, username, phone, email, uId, currentRequestId, null);
+                user = new Driver(firstName, lastName, username, phone, email, uId, currentRequestId, null, balance);
                 this.userController.getRating(uId, new Callback<Rating>() {
                     @Override
                     public void myResponseCallback(Rating result) {
@@ -91,6 +83,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     public void displayFragments() {
         if (currentRequestId != null && !currentRequestId.isEmpty()) {
+            this.rideController.addListenerToRideRequest(this, currentRequestId);
+
             this.rideController.getRideRequest(currentRequestId, new Callback<RideRequest>() {
                 @Override
                 public void myResponseCallback(RideRequest result) {
@@ -144,10 +138,24 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     statusBanner.setBackgroundColor(ContextCompat.getColor(this, R.color.bannerYellow));
                     riderFragment = new RequestInProgressFragment(currRequest, role);
                     break;
+                case PAYMENT:
+                    statusBanner.setText("Payment Processing");
+                    statusBanner.setBackgroundColor(ContextCompat.getColor(this, R.color.bannerPurple));
+                    riderFragment = new RequestPaymentFragment(currRequest, role);
+                    break;
                 case COMPLETED:
                     statusBanner.setText("Completed");
                     statusBanner.setBackgroundColor(ContextCompat.getColor(this, R.color.bannerBlue));
-                    riderFragment = new RequestCompletedFragment(currRequest, role);
+
+                    //Update the User Balance, only going to be for rider side. Since, driver
+                    //removes the request once it's completed
+                    this.userController.updateUserBalance(user, role, currRequest);
+                    user.setCurrentRequestId("");
+                    currRequest = null;
+                    this.userController.removeUserCurrentRequestId(user.getUid());
+
+                    riderFragment = new NoRequestFragment(role, user);
+                    break;
             }
         }
 
@@ -180,13 +188,68 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
+        System.out.println("In Update: ");
         if (arg == null) {
             currRequest = null;
         } else {
             currRequest = (RideRequest) arg;
-            System.out.println("In notified observer: " + currRequest.toString());
+            System.out.println("In notified observer: " + currRequest.toString() + " " + currRequest.getStatus());
         }
 
         displayFragment();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (result != null) {
+            //if qrcode has nothing in it
+            if (result.getContents() == null) {
+                Toast.makeText(this, "Result Not Found", Toast.LENGTH_LONG).show();
+            } else {
+                String scannedRequestId = result.getContents();
+
+                if (scannedRequestId.equals(currRequest.getRequestId())) {
+                    this.userController.updateUserBalance(user, role, currRequest);
+                    this.rideController.finishRideRequest(user, currRequest);
+                    currRequest = null;
+                }
+            }
+        }
+
+        displayFragment();
+    }
+
+    @Override
+    protected void onStop() {
+        this.rideController.removeListeners(this, currentRequestId);
+        super.onStop();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        System.out.println("In onResume");
+
+        // Get User object using User Controller
+        this.userController.getUser(new Callback<Map<String, Object>>() {
+            @Override
+            public void myResponseCallback(Map<String, Object> result) {
+                User responseUser = (User) result.get("user");
+                firstName = responseUser.getFirstName();
+                lastName = responseUser.getLastName();
+                username = responseUser.getUsername();
+                phone = responseUser.getPhone();
+                email = responseUser.getEmail();
+                uId = responseUser.getUid();
+                currentRequestId = responseUser.getCurrentRequestId();
+                balance = responseUser.getBalance();
+
+                role = (String) result.get("role");
+                switchRole();
+                displayFragments();
+            }
+        });
     }
 }

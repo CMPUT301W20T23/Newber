@@ -30,6 +30,15 @@ public class Driver extends User implements Serializable {
         this.setCurrentRequestId(currRequestId);
     }
 
+    public Driver(String firstName, String lastName, String username, String phone, String email,
+                  String uId, String currRequestId, Rating rating, double balance) {
+        super(firstName, lastName, username, phone, email, uId, balance);
+        this.rating = rating;
+        this.currentRequest = null;
+        this.setCurrentRequestId(currRequestId);
+    }
+
+
     public Driver() {}
 
     public void setRating(Rating rating) { this.rating = rating; }

@@ -5,6 +5,7 @@ import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.Location;
 import com.cmput301w20t23.newber.models.RequestStatus;
 import com.cmput301w20t23.newber.models.RideRequest;
+import com.cmput301w20t23.newber.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -33,11 +34,6 @@ public class RideController {
         this.databaseAdapter.removeRideRequest(rideRequest);
     }
 
-    public void updateDriverAndRequest(RideRequest request) {
-        request.setStatus(RequestStatus.OFFERED);
-        updateRideRequest(request);
-    }
-
     public void updateRideRequest(RideRequest request) {
         databaseAdapter.updateRideRequest(request);
     }
@@ -46,7 +42,24 @@ public class RideController {
         databaseAdapter.getPendingRideRequests(callback);
     }
 
-    public void addObserver(Observer observer) {
+    public void finishRideRequest(User driver, RideRequest rideRequest) {
+        driver.setCurrentRequestId("");
+        databaseAdapter.setUserCurrentRequestId(driver.getUid(), "");
+
+        rideRequest.setStatus(RequestStatus.COMPLETED);
+        updateRideRequest(rideRequest);
+    }
+
+    public void addListenerToRideRequest(Observer observer, String requestId) {
+        databaseAdapter.addListenerToRideRequest(requestId);
         this.databaseAdapter.addObserver(observer);
+    }
+
+    public void removeListeners(Observer observer, String requestId) {
+        this.databaseAdapter.deleteObserver(observer);
+
+        if (requestId != null && !requestId.isEmpty()) {
+            this.databaseAdapter.rideRequestListener.remove();
+        }
     }
 }

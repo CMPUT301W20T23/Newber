@@ -28,6 +28,10 @@ public enum RequestStatus{
      */
     CANCELLED,
     /**
+     * The ride request is in a payment state for QR Codes
+     */
+    PAYMENT,
+    /**
      * The ride has been completed.
      */
     COMPLETED

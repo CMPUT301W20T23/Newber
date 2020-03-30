@@ -1,4 +1,4 @@
-package com.cmput301w20t23.newber.views;
+package com.cmput301w20t23.newber.views.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +13,8 @@ import com.cmput301w20t23.newber.R;
 import com.cmput301w20t23.newber.models.Driver;
 import com.cmput301w20t23.newber.models.Rider;
 import com.cmput301w20t23.newber.models.User;
+import com.cmput301w20t23.newber.views.DriverRequestActivity;
+import com.cmput301w20t23.newber.views.RiderRequestActivity;
 
 /**
  * The Android Fragment that is shown when the user doesn't have a current ride request.

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/qr_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="8"
+        android:layout_marginBottom="25dp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/qr_driver_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:layout_marginBottom="25dp"
+        android:visibility="gone"
+        android:text="Waiting for the driver\n to scan the QR bucks"
+        />
+
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/qr_scan_button"
+        android:layout_gravity="center"
+        android:layout_marginTop="400dp"
+        android:text="Scan"
+        android:visibility="gone"
+        />
+
+<!--    <ImageView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:id="@+id/qr_picture"/>-->
+
+</LinearLayout>

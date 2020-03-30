@@ -30,6 +30,14 @@ public class Rider extends User implements Serializable {
         this.currentRequest = null;
     }
 
+    public Rider(String firstName, String lastName, String username, String phone, String email,
+                 String uId, String currentRequestId, double balance) {
+        super(firstName, lastName, username, phone, email, uId, balance);
+        this.setCurrentRequestId(currentRequestId);
+        this.currentRequest = null;
+    }
+
+
     public Rider() {}
 
     public void setCurrentRequest(RideRequest request) { this.currentRequest = request; }

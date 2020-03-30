@@ -95,9 +95,6 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
     public String getNameFromLatLng(LatLng latLng) {
         List<Address> addresses;
 
-        if (RiderRequestActivity.this.geocoder == null)
-            RiderRequestActivity.this.geocoder = new Geocoder(RiderRequestActivity.this, Locale.getDefault());
-
         try {
             addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
             Address address = addresses.get(0);
@@ -161,10 +158,9 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         startAutocompleteSupportFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull Place place) {
-                String name = getNameFromLatLng(place.getLatLng());
+                String name = place.getName();
                 startLocation.setLocationFromLatLng(place.getLatLng(), name);
                 setStartMarker(place.getLatLng());
-                startAutocompleteSupportFragment.setText(place.toString());
 
                 if (startLocation.toString() != null && endLocation.toString() != null) {
                     RouteGetter.getRoute(startLocation.toLatLng(), endLocation.toLatLng(),
@@ -205,7 +201,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         endAutocompleteSupportFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull Place place) {
-                String name = getNameFromLatLng(place.getLatLng());
+                String name = place.getName();
                 endLocation.setLocationFromLatLng(place.getLatLng(), name);
                 setEndMarker(place.getLatLng());
 
@@ -476,6 +472,8 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rider_request);
         mainLayout = findViewById(R.id.main_layout);
+
+        this.geocoder = new Geocoder(RiderRequestActivity.this, Locale.getDefault());
 
         // Start the Map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()

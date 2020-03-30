@@ -15,6 +15,9 @@ public class User implements Serializable {
     private String email;
     private String uId;
     private String currRequestId;
+    private double balance;
+
+    private final static double START_BALANCE = 200;
 
     /**
      * Instantiates a new User.
@@ -35,6 +38,19 @@ public class User implements Serializable {
         this.email = email;
         this.uId = uId;
         this.currRequestId = "";
+        this.balance = START_BALANCE;
+    }
+
+    public User(String firstName, String lastName, String username, String phone, String email, String uId,
+                double balance) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.username = username;
+        this.phone = phone;
+        this.email = email;
+        this.uId = uId;
+        this.currRequestId = "";
+        this.balance = balance;
     }
 
     public User() {}
@@ -154,4 +170,17 @@ public class User implements Serializable {
 
     public String getFullName() { return this.firstName + " " + this.lastName; };
 
+    public double getBalance() { return this.balance; }
+
+    public void topUpBalance() {
+        this.balance = START_BALANCE;
+    }
+
+    public void addToBalance(double cost) {
+        this.balance += cost;
+    }
+
+    public void subtractFromBalance(double cost) {
+        this.balance -= cost;
+    }
 }
