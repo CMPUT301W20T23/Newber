@@ -17,6 +17,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -34,6 +35,7 @@ public class DatabaseAdapter extends Observable {
     private CollectionReference users = null;
     private CollectionReference rideRequests = null;
     private CollectionReference ratings = null;
+    public ListenerRegistration rideRequestListener = null;
 
     private static DatabaseAdapter databaseAdapter = null;
 
@@ -229,7 +231,6 @@ public class DatabaseAdapter extends Observable {
     }
 
     public void getUser(String uid, final Callback<Map<String, Object>> callback) {
-        System.out.println(uid);
         DocumentReference docRef = users.document(uid);
 
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -288,14 +289,28 @@ public class DatabaseAdapter extends Observable {
     public void getRideRequest(String requestId, final Callback<RideRequest> callback) {
         DocumentReference docRef = rideRequests.document(requestId);
 
-//         Trying to add a listener, did not work. Not sure why
-        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        docRef.get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot != null && documentSnapshot.exists()) {
+                            RideRequest rideRequest = documentSnapshot.toObject(RideRequest.class);
+
+                            callback.myResponseCallback(rideRequest);
+                        }
+                    }
+                });
+    }
+
+    public void addListenerToRideRequest(String requestId) {
+        DocumentReference docRef = rideRequests.document(requestId);
+
+        rideRequestListener = docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 if (documentSnapshot != null && documentSnapshot.exists()) {
                     RideRequest rideRequest = documentSnapshot.toObject(RideRequest.class);
 
-                    callback.myResponseCallback(rideRequest);
                     setChanged();
                     notifyObservers(rideRequest);
                 }
@@ -320,6 +335,23 @@ public class DatabaseAdapter extends Observable {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         System.out.println("Error while updating user: " + e);
+                    }
+                });
+    }
+
+    public void updateUserBalance(String uid, double newBalance) {
+        users.document(uid)
+                .update("balance", newBalance)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        System.out.println("Balance successfully updated!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        System.out.println("Error while updating balance: " + e);
                     }
                 });
     }

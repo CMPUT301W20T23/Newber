@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import com.cmput301w20t23.newber.database.DatabaseAdapter;
 import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.Rating;
+import com.cmput301w20t23.newber.models.RideRequest;
+import com.cmput301w20t23.newber.models.Rider;
 import com.cmput301w20t23.newber.models.User;
 import com.cmput301w20t23.newber.views.MainActivity;
 import com.cmput301w20t23.newber.views.ProfileActivity;
@@ -249,7 +251,7 @@ public class UserController {
 
     /**
      * Updates user entry with contents of the user
-     * @param user user model
+     * @param uid user ID
      */
     public void removeUserCurrentRequestId(String uid) {
         this.databaseAdapter.setUserCurrentRequestId(uid, "");
@@ -266,5 +268,17 @@ public class UserController {
 
     public void getRating(String uid, Callback<Rating> callback) {
         this.databaseAdapter.getRating(uid ,callback);
+    }
+
+    public void updateUserBalance(User user, String role, RideRequest rideRequest) {
+        double cost = rideRequest.getCost();
+
+        if (role.equals("Rider")) {
+            user.subtractFromBalance(cost);
+        } else {
+            user.addToBalance(cost);
+        }
+
+        this.databaseAdapter.updateUserBalance(user.getUid(), user.getBalance());
     }
 }

@@ -1,4 +1,4 @@
-package com.cmput301w20t23.newber.views;
+package com.cmput301w20t23.newber.views.fragments;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -21,6 +21,7 @@ import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.RequestStatus;
 import com.cmput301w20t23.newber.models.RideRequest;
 import com.cmput301w20t23.newber.models.User;
+import com.cmput301w20t23.newber.views.MainActivity;
 
 import java.util.Locale;
 import java.util.Map;
@@ -38,8 +39,9 @@ public class RequestInProgressFragment extends Fragment {
     /**
      * Instantiate RideRequest controller
      */
-    private RideController rideController = new RideController();
-    private UserController userController = new UserController(this.getContext());
+    private final UserController userController = new UserController(this.getContext());
+    private final RideController rideController = new RideController();
+
     /**
      * Instantiates a new RequestInProgressFragment.
      *
@@ -105,7 +107,6 @@ public class RequestInProgressFragment extends Fragment {
                 });
 
                 completeButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.bannerBlue));
-
                 completeButton.setText("Complete");
 
                 completeButton.setOnClickListener(new View.OnClickListener()

@@ -15,6 +15,7 @@ import com.cmput301w20t23.newber.controllers.UserController;
 import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.helpers.RouteGetter;
 import com.cmput301w20t23.newber.models.Driver;
+import com.cmput301w20t23.newber.models.RequestStatus;
 import com.cmput301w20t23.newber.models.RideRequest;
 import com.cmput301w20t23.newber.models.Route;
 import com.cmput301w20t23.newber.models.User;
@@ -107,7 +108,8 @@ public class DriverAcceptRequestActivity extends AppCompatActivity {
     public void acceptRequest(View view) {
         setResult(Activity.RESULT_OK, new Intent());
         request.setDriver(driver.getUid());
-        rideController.updateDriverAndRequest(request);
+        request.setStatus(RequestStatus.OFFERED);
+        rideController.updateRideRequest(request);
 
         driver.setCurrentRequestId(request.getRequestId());
         userController.updateUserCurrentRequestId(driver.getUid(), driver.getCurrentRequestId());

@@ -1,4 +1,4 @@
-package com.cmput301w20t23.newber.views;
+package com.cmput301w20t23.newber.views.fragments;
 
 import android.content.Intent;
 import android.graphics.Bitmap;

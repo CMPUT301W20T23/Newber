@@ -1,4 +1,4 @@
-package com.cmput301w20t23.newber.views;
+package com.cmput301w20t23.newber.views.fragments;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -25,6 +25,7 @@ import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.RequestStatus;
 import com.cmput301w20t23.newber.models.RideRequest;
 import com.cmput301w20t23.newber.models.User;
+import com.cmput301w20t23.newber.views.MainActivity;
 
 import java.util.Locale;
 import java.util.Map;
@@ -42,8 +43,8 @@ public class RequestAcceptedFragment extends Fragment {
     /**
      * Instantiate User and RideRequest controllers
      */
-    private RideController rideController = new RideController();
-    private UserController userController = new UserController(this.getContext());
+    private final RideController rideController = new RideController();
+    private final UserController userController = new UserController(this.getContext());
 
     /**
      * Instantiates a new RequestAcceptedFragment.
@@ -103,7 +104,7 @@ public class RequestAcceptedFragment extends Fragment {
                     @Override
                     public void onClick(View v)
                     {
-
+                        // If rider, remove driver from request and set status to PENDING
                         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
                         dialogBuilder.setTitle("Cancel Ride");
                         dialogBuilder.setMessage("Are you sure you want to cancel this ride? Your request will remain for other drivers to browse.");
