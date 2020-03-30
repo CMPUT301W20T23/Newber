@@ -33,30 +33,18 @@ public class RatingActivity extends AppCompatActivity {
         userController = new UserController(this);
         rideController = new RideController();
 
+        // Get Driver UID through Intent
+        driverUid = getIntent().getStringExtra("driverUid");
+        userController.getRating(driverUid, new Callback<Rating>() {
+            @Override
+            public void myResponseCallback(Rating rating) {
+                RatingActivity.this.rating = rating;
+            }
+        });
+
         ImageButton goodRatingButton = findViewById(R.id.good_rating_button);
         ImageButton badRatingButton = findViewById(R.id.bad_rating_button);
         Button skipRatingButton = findViewById(R.id.skip_rating_button);
-
-        userController.getUser(new Callback<Map<String, Object>>() {
-            @Override
-            public void myResponseCallback(Map<String, Object> result) {
-                String requestId = (String) result.get("requestId");
-                rideController.getRideRequest(requestId, new Callback<RideRequest>() {
-                    @Override
-                    public void myResponseCallback(RideRequest result) {
-                        RideRequest tempRequest = result;
-                        final String driverUid = tempRequest.getDriver();
-
-                        userController.getRating(driverUid, new Callback<Rating>() {
-                            @Override
-                            public void myResponseCallback(Rating rating) {
-                                switchRating(driverUid, rating);
-                            }
-                        });
-                    }
-                });
-            }
-        });
 
 //        // Hardcoded test
 //        final String driverUid = "9lhxPOJMDzZVmmLnkSuAX2PHcBU2";
@@ -77,6 +65,7 @@ public class RatingActivity extends AppCompatActivity {
                 userController.updateRating(driverUid, rating);
 
                 // Finish activity
+                finish();
             }
         });
 
@@ -89,7 +78,7 @@ public class RatingActivity extends AppCompatActivity {
                 userController.updateRating(driverUid, rating);
 
                 // Finish activity
-
+                finish();
             }
         });
 
@@ -98,6 +87,7 @@ public class RatingActivity extends AppCompatActivity {
             public void onClick(View view) {
                 // Return to main screen
                 // Finish activity
+                finish();
             }
         });
     }
