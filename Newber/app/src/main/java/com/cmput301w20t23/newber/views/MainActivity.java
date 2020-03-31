@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     break;
                 case PAYMENT:
                     statusBanner.setText("Payment Processing");
-                    statusBanner.setBackgroundColor(ContextCompat.getColor(this, R.color.bannerPurple));
+                    statusBanner.setBackgroundColor(ContextCompat.getColor(this, R.color.bannerBlue));
                     riderFragment = new RequestPaymentFragment(currRequest, role);
                     break;
                 case COMPLETED:
