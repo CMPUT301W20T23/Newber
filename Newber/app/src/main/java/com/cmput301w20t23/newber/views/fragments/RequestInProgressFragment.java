@@ -126,6 +126,7 @@ public class RequestInProgressFragment extends Fragment {
 
             case "Driver":
                 userLabelTextView.setText("Rider: ");
+                
                 // Set values of info box
                 userController.getUser(rideRequest.getRider(), new Callback<Map<String, Object>>() {
                     @Override
