@@ -118,10 +118,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
                         statusBanner.setText("Requested");
                         statusBanner.setBackgroundColor(ContextCompat.getColor(this, R.color.bannerRed));
                         riderFragment = new RequestPendingFragment(currRequest);
-                    } else {
-                        statusBanner.setText("No Request");
-                        statusBanner.setBackgroundColor(Color.LTGRAY);
-                        riderFragment = new NoRequestFragment(role, user);
                     }
                     break;
                 case OFFERED:
@@ -158,8 +154,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     this.userController.removeUserCurrentRequestId(user.getUid());
 
                     startRatingActivity();
-                    statusBanner.setText("No Request");
-                    statusBanner.setBackgroundColor(Color.LTGRAY);
                     riderFragment = new NoRequestFragment(role, user);
                     break;
             }
@@ -175,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
         Intent ratingIntent = new Intent(this, RatingActivity.class);
         ratingIntent.putExtra("driverUid", currRequest.getDriver());
 
-        // Set intent to null since there is no need for it anymore
+        // Set request to null since there is no need for it anymore
         currRequest = null;
         startActivity(ratingIntent);
     }
@@ -210,6 +204,11 @@ public class MainActivity extends AppCompatActivity implements Observer {
         } else {
             currRequest = (RideRequest) arg;
             System.out.println("In notified observer: " + currRequest.toString() + " " + currRequest.getStatus());
+            System.out.println("driver: " + currRequest.getDriver());
+            if ((currRequest.getDriver() == null || currRequest.getDriver() == "" ) && role.matches("Driver")) {
+                System.out.println("setting curr to null");
+                currRequest = null;
+            }
         }
 
         displayFragment();
