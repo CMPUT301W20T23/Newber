@@ -120,6 +120,20 @@ public class ProfileActivity extends AppCompatActivity {
                 edit();
                 return true;
 
+            case R.id.top_up:
+                // modify balance
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+                dialogBuilder.setMessage("Your balance has been topped up!");
+                dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                AlertDialog dialog = dialogBuilder.create();
+                dialog.show();
+                return true;
+
             case R.id.logout:
                 // log out
                 logout();

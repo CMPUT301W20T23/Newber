@@ -5,6 +5,10 @@
         app:showAsAction="always"
         android:title="@string/edit"
         android:icon="@drawable/ic_edit_white_24dp" />
+    <item android:id="@+id/top_up"
+        app:showAsAction="always"
+        android:title="@string/top_up"
+        android:icon="@drawable/ic_attach_money_black_24dp" />
     <item android:id="@+id/logout"
         app:showAsAction="always"
         android:title="@string/logout"
