@@ -17,7 +17,7 @@ public class User implements Serializable {
     private String currRequestId;
     private double balance;
 
-    private final static double START_BALANCE = 200;
+    public final static double START_BALANCE = 200;
 
     /**
      * Instantiates a new User.
