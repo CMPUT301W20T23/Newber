@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
@@ -56,9 +55,10 @@ public class DriverRequestActivity extends AppCompatActivity implements OnMapRea
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final int DRIVER_ACCEPT_REQUEST = 1;
+    private static final double SEARCH_RADIUS = 5000;
 
     private GoogleMap googleMap;
-    private Marker startMarker;
+    private Marker marker;
     private Geocoder geocoder;
     private static final int PERMISSION_REQUEST_LOCATION = 0;
     private View mainLayout;
@@ -84,9 +84,8 @@ public class DriverRequestActivity extends AppCompatActivity implements OnMapRea
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        // Set up the auto-complete and the map-buttons fragments
-        setUpAutoCompleteFragments();
-        setUpMapButton();
+        // Set up the auto-complete fragment
+        setUpAutoCompleteFragment();
 
         // Set up the ListView and Adapter to handle receiving requests, and set the Click Listener
         requestListView = findViewById(R.id.request_list);
@@ -124,27 +123,21 @@ public class DriverRequestActivity extends AppCompatActivity implements OnMapRea
     /**
      * Sets up auto complete fragments.
      */
-    public void setUpAutoCompleteFragments() {
-        final AutocompleteSupportFragment startAutocompleteSupportFragment = (AutocompleteSupportFragment)
-                getSupportFragmentManager().findFragmentById(R.id.start_autocomplete_fragment);
-        startAutocompleteSupportFragment.setHint("Search");
+    public void setUpAutoCompleteFragment() {
+        final AutocompleteSupportFragment autocompleteSupportFragment = (AutocompleteSupportFragment)
+                getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+        autocompleteSupportFragment.setHint("Search");
 
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), getString(R.string.API_KEY), Locale.CANADA);
         }
-        startAutocompleteSupportFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG));
+        autocompleteSupportFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG));
 
-        startAutocompleteSupportFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+        autocompleteSupportFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull Place place) {
                 System.out.println("From Place: " + place.getName() + ", latlng: " + place.getLatLng());
-                if (startMarker != null) {
-                    startMarker.remove();
-                }
-
-                startMarker = googleMap.addMarker(new MarkerOptions().position(place.getLatLng()));
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 12.0f));
-
+                setMarker(place.getLatLng());
                 queryOpenRequests(place.getLatLng());
             }
 
@@ -175,32 +168,6 @@ public class DriverRequestActivity extends AppCompatActivity implements OnMapRea
             e.printStackTrace();
             return "";
         }
-    }
-
-    /**
-     * Sets up the Pick-Up Location Map Button to be clickable, and allow the user to select
-     * a location on the map
-     */
-    public void setUpMapButton() {
-        Button driverMapButton = findViewById(R.id.driver_map_button);
-
-        driverMapButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DriverRequestActivity.this.googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-                    @Override
-                    public void onMapLongClick(LatLng latLng) {
-                        if (startMarker != null) {
-                            startMarker.remove();
-                        }
-
-                        startMarker = googleMap.addMarker(new MarkerOptions().position(latLng));
-                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12.0f));
-                        queryOpenRequests(latLng);
-                    }
-                });
-            }
-        });
     }
 
     /**
@@ -260,6 +227,21 @@ public class DriverRequestActivity extends AppCompatActivity implements OnMapRea
         uiSettings.setAllGesturesEnabled(true);
         uiSettings.setZoomControlsEnabled(true);
         uiSettings.setCompassEnabled(true);
+
+        googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                String name = getNameFromLatLng(latLng);
+                AutocompleteSupportFragment autocompleteSupportFragment = (AutocompleteSupportFragment)
+                        getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+                autocompleteSupportFragment.setText(name);
+
+                System.out.println("From Place: " + name + ", latlng: " + latLng);
+                setMarker(latLng);
+
+                queryOpenRequests(latLng);
+            }
+        });
     }
 
     @Override
@@ -284,22 +266,10 @@ public class DriverRequestActivity extends AppCompatActivity implements OnMapRea
      * @param latLng
      */
     private void queryOpenRequests(final LatLng latLng) {
-        // Search radius
-        final double SEARCH_RADIUS = 5000;
-
-        // Set up map bounds
-        double distanceCenterToCorner = SEARCH_RADIUS * Math.sqrt(2.0);
-        LatLng southwestCorner =
-                SphericalUtil.computeOffset(latLng, distanceCenterToCorner, 225.0);
-        LatLng northeastCorner =
-                SphericalUtil.computeOffset(latLng, distanceCenterToCorner, 45.0);
-        final LatLngBounds mapBounds = new LatLngBounds(southwestCorner, northeastCorner);
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(mapBounds, 0));
-
         rideController.getPendingRideRequests(new Callback<ArrayList<RideRequest>>() {
             @Override
             public void myResponseCallback(ArrayList<RideRequest> result) {
-                ArrayList<RideRequest> openRequests = new ArrayList<RideRequest>();
+                ArrayList<RideRequest> openRequests = new ArrayList<>();
 
                 for (RideRequest rideRequest : result) {
                     if (SphericalUtil.computeDistanceBetween(
@@ -335,6 +305,23 @@ public class DriverRequestActivity extends AppCompatActivity implements OnMapRea
         requestListAdapter.clear();
         requestListAdapter.addAll(openRequests);
         requestListAdapter.notifyDataSetChanged();
+    }
+
+    private void setMarker(LatLng latLng) {
+        if (marker != null) {
+            marker.remove();
+        }
+
+        marker = googleMap.addMarker(new MarkerOptions().position(latLng));
+
+        // Set up map bounds
+        double distanceCenterToCorner = SEARCH_RADIUS * Math.sqrt(2.0);
+        LatLng southwestCorner =
+                SphericalUtil.computeOffset(latLng, distanceCenterToCorner, 225.0);
+        LatLng northeastCorner =
+                SphericalUtil.computeOffset(latLng, distanceCenterToCorner, 45.0);
+        final LatLngBounds mapBounds = new LatLngBounds(southwestCorner, northeastCorner);
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(mapBounds, 0));
     }
 
     public void cancelDriverRequest(View view) {
