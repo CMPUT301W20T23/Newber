@@ -6,11 +6,11 @@ import java.util.List;
 
 public class Route {
     private List<LatLng> points;
-    private double distanceInMeters;
+    private double distanceInMetres;
 
-    public Route(List<LatLng> points, double distanceInMeters) {
+    public Route(List<LatLng> points, double distanceInMetres) {
         this.points = points;
-        this.distanceInMeters = distanceInMeters;
+        this.distanceInMetres = distanceInMetres;
     }
 
     public List<LatLng> getPoints() {
@@ -21,11 +21,11 @@ public class Route {
         this.points = points;
     }
 
-    public double getDistanceInMeters() {
-        return distanceInMeters;
+    public double getDistanceInMetres() {
+        return distanceInMetres;
     }
 
-    public void setDistanceInMeters(double distanceInMeters) {
-        this.distanceInMeters = distanceInMeters;
+    public void setDistanceInMetres(double distanceInMetres) {
+        this.distanceInMetres = distanceInMetres;
     }
 }

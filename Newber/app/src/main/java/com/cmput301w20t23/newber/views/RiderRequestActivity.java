@@ -170,7 +170,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                                 public void myResponseCallback(Route result) {
                                     if (result != null) {
                                         drawRoute(result.getPoints());
-                                        calculateFare(result.getDistanceInMeters());
+                                        calculateFare(result.getDistanceInMetres());
                                     }
                                 }
                             });
@@ -213,7 +213,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                                 public void myResponseCallback(Route result) {
                                     if (result != null) {
                                         drawRoute(result.getPoints());
-                                        calculateFare(result.getDistanceInMeters());
+                                        calculateFare(result.getDistanceInMetres());
                                     }
                                 }
                             });
@@ -269,7 +269,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                                         public void myResponseCallback(Route result) {
                                             if (result != null) {
                                                 drawRoute(result.getPoints());
-                                                calculateFare(result.getDistanceInMeters());
+                                                calculateFare(result.getDistanceInMetres());
                                             }
                                         }
                                     });
@@ -307,7 +307,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
                                         public void myResponseCallback(Route result) {
                                             if (result != null) {
                                                 drawRoute(result.getPoints());
-                                                calculateFare(result.getDistanceInMeters());
+                                                calculateFare(result.getDistanceInMetres());
                                             }
                                         }
                                     });
@@ -427,7 +427,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
      * Calculate base fare based on distance between start location and end location and set
      * fare text accordingly
      *
-     * @param distanceInMetres the route distance in meters
+     * @param distanceInMetres the route distance in metres
      */
     private void calculateFare(double distanceInMetres) {
         final double PRICE_PER_KM = 1.00;
