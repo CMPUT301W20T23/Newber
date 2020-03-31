@@ -30,6 +30,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Observer;
 
 /**
  * The Android Activity that handles Driver Accepting Request.
