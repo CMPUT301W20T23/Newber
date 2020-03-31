@@ -516,11 +516,15 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
 
         Intent intent = getIntent();
         Rider rider = (Rider) intent.getSerializableExtra("rider");
-        System.out.println("rider username:" + rider.getUsername());
 
         // round fare value to 2 decimal places
         DecimalFormat fareFormat = new DecimalFormat("#.00");
         fareValue = Double.valueOf(fareFormat.format(fareValue));
+
+        if (rider.getBalance() < fareValue) {
+            Toast.makeText(this, "You do not have enough money to request this ride", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         rideController.createRideRequest(startLocation, endLocation, fareValue, rider.getUid());
         finish();
