@@ -35,6 +35,8 @@ import java.util.Map;
 public class ProfileActivity extends AppCompatActivity {
 //    private FirebaseAuth mAuth;
     private UserController userController;
+    private User user;
+    private String role;
 
     private TextView fullName;
     private TextView username;
@@ -65,8 +67,8 @@ public class ProfileActivity extends AppCompatActivity {
         userController.getUser(new Callback<Map<String, Object>>() {
             @Override
             public void myResponseCallback(Map<String, Object> result) {
-                String role = (String) result.get("role");
-                User user = (User) result.get("user");
+                role = (String) result.get("role");
+                user = (User) result.get("user");
 
                 switchRoles(role, user);
             }
@@ -109,6 +111,7 @@ public class ProfileActivity extends AppCompatActivity {
         // options menu contains buttons for editing contact info and logging out
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.profile_options_menu, menu);
+
         return true;
     }
 
@@ -121,7 +124,18 @@ public class ProfileActivity extends AppCompatActivity {
                 return true;
 
             case R.id.top_up:
+                if (role.equals("Driver")) {
+                    return true;
+                }
+
                 // modify balance
+                String uid = user.getUid();
+                user.addToBalance(User.START_BALANCE);
+                userController.addToBalance(uid, User.START_BALANCE);
+
+                DecimalFormat decFormat = new DecimalFormat("#.00");
+                balance.setText("$" + Double.valueOf(decFormat.format(user.getBalance())).toString());
+
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
                 dialogBuilder.setMessage("Your balance has been topped up!");
                 dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {

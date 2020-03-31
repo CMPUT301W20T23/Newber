@@ -296,15 +296,23 @@ public class UserController {
     }
 
     public void removeUserToken() {
-        String uid = mAuth.getCurrentUser().getUid();
+        String uid = getCurrentUserId() ;
         databaseAdapter.setUserToken(uid, null);
+    }
+
+    public String getCurrentUserId() {
+        return mAuth.getCurrentUser().getUid();
+    }
+
+    public void addToBalance(String uid, double cost) {
+        this.databaseAdapter.incrementUserBalance(uid, cost);
     }
 
     public void transferBalance(RideRequest rideRequest) {
         double cost = rideRequest.getCost();
 
-        this.databaseAdapter.incrementUserBalance(rideRequest.getRider(), -1 * cost);
-        this.databaseAdapter.incrementUserBalance(rideRequest.getDriver(), cost);
+        addToBalance(rideRequest.getRider(), -1 * cost);
+        addToBalance(rideRequest.getDriver(), cost);
     }
 
     public void updateRating(String uid, final Rating rating) {
