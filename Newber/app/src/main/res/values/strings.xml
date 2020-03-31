@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Newber</string>
     <string name="API_KEY">AIzaSyAGmBxEjzU68YpgCNWsldO73dFcwnj0BT8</string>
+    <string name="default_notification_channel_id">RIDE_UPDATES</string>
     <string name="rider">Rider</string>
     <string name="driver">Driver</string>
     <string name="first_name">First Name</string>
