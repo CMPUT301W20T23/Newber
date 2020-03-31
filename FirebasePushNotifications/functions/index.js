@@ -43,10 +43,12 @@ exports.sendNotification = functions.firestore
                     return admin.messaging()
                         .sendToDevice(riderToken, notificationContent)
                         .then(result => {
-                            return console.log('Notification sent!');
+                            console.log('Notification sent!');
+                            return true;
                     });
                 } else {
-                    return console.log('No token!');
+                    console.log('No token!');
+                    return false;
                 }
         });
     } else if ((before.status === 'OFFERED') && (after.status === 'ACCEPTED')) {
@@ -78,13 +80,16 @@ exports.sendNotification = functions.firestore
                     return admin.messaging()
                         .sendToDevice(driverToken, notificationContent)
                         .then(result => {
-                            return console.log('Notification sent!');
+                            console.log('Notification sent!');
+                            return true;
                     });
                 } else {
-                    return console.log('No token!');
+                    console.log('No token!');
+                    return false;
                 }
         });
     } else {
-        return console.log('No notification needed!');
+        console.log('No notification needed!');
+        return false;
     }
 });

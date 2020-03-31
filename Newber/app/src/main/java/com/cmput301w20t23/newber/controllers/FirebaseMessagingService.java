@@ -21,7 +21,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
 
-        String title = "Ride Offer Update";
+        String title = "Ride Offer";
         String message = remoteMessage.getData().get("message");
 
         Intent intent = new Intent(this, MainActivity.class);

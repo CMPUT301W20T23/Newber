@@ -89,23 +89,6 @@ public class RequestInProgressFragment extends Fragment {
                     }
                 });
 
-                // Complete ride button only visible by driver; rider hides it
-                completeButton.setVisibility(View.INVISIBLE);
-
-                break;
-
-            case "Driver":
-                // Set values of info box
-                userController.getUser(rideRequest.getRider(), new Callback<Map<String, Object>>() {
-                    @Override
-                    public void myResponseCallback(Map<String, Object> result) {
-                        User rider = (User) result.get("user");
-                        usernameTextView.setText(rider.getUsername());
-                        usernameTextView.setPaintFlags(usernameTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-                        usernameTextView.setOnClickListener(new NameOnClickListener(getActivity(), userController, role, rider));
-                    }
-                });
-
                 completeButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.bannerBlue));
                 completeButton.setText("Complete");
 
@@ -124,8 +107,6 @@ public class RequestInProgressFragment extends Fragment {
                                 dialogInterface.dismiss();
                                 rideRequest.setStatus(RequestStatus.PAYMENT);
                                 rideController.updateRideRequest(rideRequest);
-
-                                // TODO: Start RiderPaymentActivity
                             }
                         });
 
@@ -141,6 +122,22 @@ public class RequestInProgressFragment extends Fragment {
                     }
                 });
 
+                break;
+
+            case "Driver":
+                // Set values of info box
+                userController.getUser(rideRequest.getRider(), new Callback<Map<String, Object>>() {
+                    @Override
+                    public void myResponseCallback(Map<String, Object> result) {
+                        User rider = (User) result.get("user");
+                        usernameTextView.setText(rider.getUsername());
+                        usernameTextView.setPaintFlags(usernameTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                        usernameTextView.setOnClickListener(new NameOnClickListener(getActivity(), userController, role, rider));
+                    }
+                });
+
+                // Complete ride button only visible by rider; driver hides it
+                completeButton.setVisibility(View.INVISIBLE);
                 break;
         }
 
