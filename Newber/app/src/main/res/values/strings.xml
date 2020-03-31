@@ -20,6 +20,7 @@
     <string name="rating">Rating</string>
     <string name="edit">Edit</string>
     <string name="logout">Logout</string>
+    <string name="top_up">Top Up</string>
     <string name="no_ride_req_msg">You currently have no ride request.</string>
     <string name="create_request_button_txt">Create a request</string>
     <string name="rider_pending_request_msg">Waiting for a driver to accept the request...</string>
