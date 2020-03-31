@@ -20,7 +20,7 @@
         android:layout_gravity="center"
         android:layout_marginBottom="25dp"
         android:visibility="gone"
-        android:text="Waiting for the driver\n to scan the QR bucks"
+        android:text="Waiting for the driver to scan the QR bucks..."
         />
 
 
@@ -33,10 +33,5 @@
         android:text="Scan"
         android:visibility="gone"
         />
-
-<!--    <ImageView-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:id="@+id/qr_picture"/>-->
 
 </LinearLayout>
