@@ -24,6 +24,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 import java.util.Map;
 
@@ -112,6 +114,7 @@ public class UserController {
      * Logs a user out of the app through Firebase authentication.
      */
     public void logout() {
+        removeUserToken();
         mAuth.signOut();
     }
 
@@ -133,7 +136,7 @@ public class UserController {
                            final String email,
                            final String password)
     {
-        this.databaseAdapter.checkUserName(username, new Callback<Boolean>() {
+        databaseAdapter.checkUserName(username, new Callback<Boolean>() {
             @Override
             public void myResponseCallback(Boolean result) {
                 if (result) {
@@ -152,6 +155,7 @@ public class UserController {
                                                 task.getResult().getUser().getUid());
 
                                         databaseAdapter.createUser(newUser, role);
+                                        registerUserToken();
 
                                         Intent signedUpIntent = new Intent(UserController.this.context,
                                                 MainActivity.class);
@@ -247,7 +251,7 @@ public class UserController {
      * @param requestId ride request id
      */
     public void updateUserCurrentRequestId(String uid, String requestId) {
-        this.databaseAdapter.setUserCurrentRequestId(uid, requestId);
+        databaseAdapter.setUserCurrentRequestId(uid, requestId);
     }
 
     /**
@@ -255,20 +259,45 @@ public class UserController {
      * @param uid user id
      */
     public void removeUserCurrentRequestId(String uid) {
-        this.databaseAdapter.setUserCurrentRequestId(uid, "");
+        databaseAdapter.setUserCurrentRequestId(uid, "");
     }
 
     public void getUser(Callback<Map<String, Object>> callback) {
         String uid = mAuth.getCurrentUser().getUid();
-        this.databaseAdapter.getUser(uid, callback);
+        databaseAdapter.getUser(uid, callback);
     }
 
     public void getUser(String uid, Callback<Map<String, Object>> callback) {
-        this.databaseAdapter.getUser(uid, callback);
+        databaseAdapter.getUser(uid, callback);
     }
 
     public void getRating(String uid, Callback<Rating> callback) {
-        this.databaseAdapter.getRating(uid ,callback);
+        databaseAdapter.getRating(uid ,callback);
+    }
+
+    public void registerUserToken() {
+        FirebaseInstanceId.getInstance().getInstanceId()
+            .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                @Override
+                public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                    if (!task.isSuccessful()) {
+                        Toast.makeText(UserController.this.context,
+                                task.getException().toString(),
+                                Toast.LENGTH_SHORT)
+                                .show();
+                        return;
+                    }
+
+                    String uid = mAuth.getCurrentUser().getUid();
+                    String token = task.getResult().getToken();
+                    databaseAdapter.setUserToken(uid, token);
+                }
+            });
+    }
+
+    public void removeUserToken() {
+        String uid = mAuth.getCurrentUser().getUid();
+        databaseAdapter.setUserToken(uid, null);
     }
 
     public void transferBalance(RideRequest rideRequest) {
