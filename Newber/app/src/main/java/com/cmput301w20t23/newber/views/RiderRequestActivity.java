@@ -3,6 +3,7 @@ package com.cmput301w20t23.newber.views;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -231,12 +232,24 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
      * a from/to location on the map
      */
     public void setUpMapButtons() {
-        Button fromMapButton = findViewById(R.id.from_map_button);
-        Button toMapButton = findViewById(R.id.to_map_button);
+        final Button fromMapButton = findViewById(R.id.from_map_button);
+        final Button toMapButton = findViewById(R.id.to_map_button);
+
+        fromMapButton.setTextColor(Color.WHITE);
+        fromMapButton.setBackgroundColor(Color.RED);
+
+        toMapButton.setTextColor(Color.WHITE);
+        toMapButton.setBackgroundColor(Color.BLUE);
 
         fromMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                fromMapButton.setTextColor(Color.BLACK);
+                fromMapButton.setBackgroundColor(Color.LTGRAY);
+
+                toMapButton.setTextColor(Color.WHITE);
+                toMapButton.setBackgroundColor(Color.BLUE);
+
                 RiderRequestActivity.this.googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                     @Override
                     public void onMapLongClick(LatLng latLng) {
@@ -269,6 +282,12 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         toMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                toMapButton.setTextColor(Color.BLACK);
+                toMapButton.setBackgroundColor(Color.LTGRAY);
+
+                fromMapButton.setTextColor(Color.WHITE);
+                fromMapButton.setBackgroundColor(Color.RED);
+
                 RiderRequestActivity.this.googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                     @Override
                     public void onMapLongClick(LatLng latLng) {

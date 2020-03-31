@@ -22,6 +22,7 @@ import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.Rating;
 import com.cmput301w20t23.newber.models.User;
 
+import java.text.DecimalFormat;
 import java.util.Map;
 
 //import com.google.firebase.auth.FirebaseAuth;
@@ -39,6 +40,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView username;
     private TextView phone;
     private TextView email;
+    private TextView balance;
 
     private TextView ratingLabel;
     private LinearLayout ratingLayout;
@@ -58,6 +60,7 @@ public class ProfileActivity extends AppCompatActivity {
         username = findViewById(R.id.username);
         phone = findViewById(R.id.phone);
         email = findViewById(R.id.email);
+        balance = findViewById(R.id.balance);
 
         userController.getUser(new Callback<Map<String, Object>>() {
             @Override
@@ -71,12 +74,16 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void switchRoles(String role, User user) {
+        DecimalFormat decFormat = new DecimalFormat("#.00");
+
         switch (role) {
             case "Rider":
                 fullName.setText(user.getFirstName() + " " + user.getLastName());
                 username.setText(user.getUsername());
                 phone.setText(user.getPhone());
                 email.setText(user.getEmail());
+                balance.setText("$" + Double.valueOf(decFormat.format(user.getBalance())).toString());
+
                 break;
             case "Driver":
                 ratingLabel = findViewById(R.id.ratingLabel);
@@ -90,6 +97,7 @@ public class ProfileActivity extends AppCompatActivity {
                 username.setText(user.getUsername());
                 phone.setText(user.getPhone());
                 email.setText(user.getEmail());
+                balance.setText("$" + Double.valueOf(decFormat.format(user.getBalance())).toString());
 
                 loadRatings(user.getUid());
                 break;
@@ -110,6 +118,20 @@ public class ProfileActivity extends AppCompatActivity {
             case R.id.edit:
                 // edit contact info
                 edit();
+                return true;
+
+            case R.id.top_up:
+                // modify balance
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+                dialogBuilder.setMessage("Your balance has been topped up!");
+                dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                AlertDialog dialog = dialogBuilder.create();
+                dialog.show();
                 return true;
 
             case R.id.logout:

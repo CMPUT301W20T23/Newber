@@ -58,11 +58,17 @@ public class NameOnClickListener implements View.OnClickListener {
         TextView username = dialogView.findViewById(R.id.username);
         TextView phone = dialogView.findViewById(R.id.phone);
         TextView email = dialogView.findViewById(R.id.email);
+        TextView balanceLabel = dialogView.findViewById(R.id.balance_label);
+        TextView balance = dialogView.findViewById(R.id.balance);
 
         fullName.setText(user.getFirstName() + " " + user.getLastName());
         username.setText(user.getUsername());
         phone.setText(user.getPhone());
         email.setText(user.getEmail());
+
+        // hide balance
+        balanceLabel.setVisibility(View.GONE);
+        balance.setVisibility(View.GONE);
 
         if (role.equals("Rider")) {
             // Get driver rating info
