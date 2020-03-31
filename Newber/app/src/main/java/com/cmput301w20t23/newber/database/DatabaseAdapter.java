@@ -58,7 +58,7 @@ public class DatabaseAdapter extends Observable {
     public void createRating(String uid) {
         Rating rating = new Rating(0, 0);
 
-        this.ratings.document(uid)
+        ratings.document(uid)
                 .set(rating)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -373,6 +373,31 @@ public class DatabaseAdapter extends Observable {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         System.out.println("Error while updating balance: " + e);
+                    }
+                });
+    }
+
+    public void setUserToken(String uid, String token) {
+        Map<String, Object> newData = new HashMap<>();
+
+        if (token == null) {
+            newData.put("token", FieldValue.delete());
+        } else {
+            newData.put("token", token);
+        }
+
+        users.document(uid)
+                .update(newData)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        System.out.println("Token successfully written!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        System.out.println("Error while updating token: " + e);
                     }
                 });
     }

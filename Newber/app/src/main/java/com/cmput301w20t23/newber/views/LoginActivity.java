@@ -43,10 +43,10 @@ public class LoginActivity extends AppCompatActivity {
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            this.userController.getUser(new Callback<Map<String, Object>>() {
+            userController.getUser(new Callback<Map<String, Object>>() {
                 @Override
                 public void myResponseCallback(Map<String, Object> result) {
-                    String role = (String) result.get("role");
+                    userController.registerUserToken();
 
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -70,7 +70,6 @@ public class LoginActivity extends AppCompatActivity {
      * @param view the button that was clicked
      */
     public void login(View view) {
-
         email = ((EditText)(findViewById(R.id.email_login))).getText().toString();
         password = ((EditText)(findViewById(R.id.password_login))).getText().toString();
 
@@ -82,7 +81,7 @@ public class LoginActivity extends AppCompatActivity {
                     // if login was successful
                     if (task.isSuccessful()) {
                         Log.d("MYTAG", "signInWithEmail:success");
-                        FirebaseUser user = mAuth.getCurrentUser();
+                        userController.registerUserToken();
                         // transition to main screen after log in
                         Intent mainIntent = new Intent(getBaseContext(), MainActivity.class);
                         mainIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
