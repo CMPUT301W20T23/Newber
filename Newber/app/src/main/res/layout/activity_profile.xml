@@ -63,6 +63,22 @@
         android:textColor="@color/colorBlack"/>
 
     <TextView
+        android:id="@+id/balance_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/balance"
+        android:textSize="15sp"
+        android:textColor="@color/colorPrimaryDark"/>
+
+    <TextView
+        android:id="@+id/balance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:textSize="20sp"
+        android:textColor="@color/colorBlack"/>
+
+    <TextView
         android:id="@+id/ratingLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -110,26 +126,5 @@
             android:textColor="@color/colorBlack"/>
     </LinearLayout>
 
-<!--    <Button-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_gravity="center_horizontal"-->
-<!--        android:layout_marginBottom="20dp"-->
-<!--        android:background="@color/colorPrimaryDark"-->
-<!--        android:text="@string/edit"-->
-<!--        android:textColor="@color/colorWhite"-->
-<!--        android:onClick="edit">-->
 
-<!--    </Button>-->
-
-<!--    <Button-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_gravity="center_horizontal"-->
-<!--        android:background="@color/colorPrimaryDark"-->
-<!--        android:text="@string/logout"-->
-<!--        android:textColor="@color/colorWhite"-->
-<!--        android:onClick="logout">-->
-
-<!--    </Button>-->
 </LinearLayout>
