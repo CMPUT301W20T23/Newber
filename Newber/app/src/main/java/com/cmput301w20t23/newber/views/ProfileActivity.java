@@ -84,7 +84,7 @@ public class ProfileActivity extends AppCompatActivity {
                 username.setText(user.getUsername());
                 phone.setText(user.getPhone());
                 email.setText(user.getEmail());
-                balance.setText("$" + Double.valueOf(decFormat.format(user.getBalance())).toString());
+                balance.setText("$" + decFormat.format(user.getBalance()));
 
                 break;
             case "Driver":
@@ -99,7 +99,7 @@ public class ProfileActivity extends AppCompatActivity {
                 username.setText(user.getUsername());
                 phone.setText(user.getPhone());
                 email.setText(user.getEmail());
-                balance.setText("$" + Double.valueOf(decFormat.format(user.getBalance())).toString());
+                balance.setText("$" + decFormat.format(user.getBalance()));
 
                 loadRatings(user.getUid());
                 break;
@@ -134,7 +134,7 @@ public class ProfileActivity extends AppCompatActivity {
                 userController.addToBalance(uid, User.START_BALANCE);
 
                 DecimalFormat decFormat = new DecimalFormat("#.00");
-                balance.setText("$" + Double.valueOf(decFormat.format(user.getBalance())).toString());
+                balance.setText("$" + decFormat.format(user.getBalance()));
 
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
                 dialogBuilder.setMessage("Your balance has been topped up!");
