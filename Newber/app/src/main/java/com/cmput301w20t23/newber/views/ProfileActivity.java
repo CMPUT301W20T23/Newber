@@ -54,6 +54,7 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
+        role = getIntent().getStringExtra("role");
         setTitle(getString(R.string.profile));
 
         userController = new UserController(this);
@@ -64,10 +65,10 @@ public class ProfileActivity extends AppCompatActivity {
         email = findViewById(R.id.email);
         balance = findViewById(R.id.balance);
 
+
         userController.getUser(new Callback<Map<String, Object>>() {
             @Override
             public void myResponseCallback(Map<String, Object> result) {
-                role = (String) result.get("role");
                 user = (User) result.get("user");
 
                 switchRoles(role, user);
@@ -112,6 +113,11 @@ public class ProfileActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.profile_options_menu, menu);
 
+        if (role.equals("Driver")) {
+            MenuItem menuItem = menu.findItem(R.id.top_up);
+            menuItem.setVisible(false);
+        }
+
         return true;
     }
 
@@ -124,10 +130,6 @@ public class ProfileActivity extends AppCompatActivity {
                 return true;
 
             case R.id.top_up:
-                if (role.equals("Driver")) {
-                    return true;
-                }
-
                 // modify balance
                 String uid = user.getUid();
                 user.addToBalance(User.START_BALANCE);
