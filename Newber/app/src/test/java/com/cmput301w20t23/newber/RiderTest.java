@@ -29,18 +29,20 @@ public class RiderTest {
         testEnd.setLatitude(74.0060);
         testStart.setName("New York");
 
-        Driver testDriver = new Driver();
-
-        testRequest = new RideRequest("123", testStart, testEnd, RequestStatus.PENDING, testRider, testDriver, 10);
         testRider = new Rider("first",
                 "last",
                 "user",
                 "1234567890",
                 "email@site.ca",
                 "69420",
-                testRequest.getRequestId());
+                "");
+
+        Driver testDriver = new Driver();
+
+        testRequest = new RideRequest("123", testStart, testEnd, RequestStatus.PENDING, testRider.getUid(), testDriver.getUid(), 10);
 
         testRider.setCurrentRequest(testRequest);
+        testRider.setCurrentRequestId(testRequest.getRequestId());
     }
 
     @Test
