@@ -187,8 +187,10 @@ public class MainActivity extends AppCompatActivity implements Observer {
         switch (item.getItemId()) {
             case R.id.profile:
                 // go to profile activity
-                Intent i = new Intent(this, ProfileActivity.class);
-                this.startActivity(i);
+                Intent intent = new Intent(this, ProfileActivity.class);
+                intent.putExtra("role", role);
+
+                this.startActivity(intent);
                 return true;
 
             default:
