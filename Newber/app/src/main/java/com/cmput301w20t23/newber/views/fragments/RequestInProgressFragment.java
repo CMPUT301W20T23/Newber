@@ -66,7 +66,7 @@ public class RequestInProgressFragment extends Fragment {
         TextView fareTextView = view.findViewById(R.id.ride_fare);
         TextView userLabelTextView = view.findViewById(R.id.user_label);
         final TextView usernameTextView = view.findViewById(R.id.username);
-        Button completeButton = view.findViewById(R.id.driver_complete_ride_button);
+        Button completeButton = view.findViewById(R.id.complete_ride_button);
 
         // Set view elements
         pickupLocationTextView.setText(rideRequest.getStartLocation().getName());
@@ -125,6 +125,7 @@ public class RequestInProgressFragment extends Fragment {
                 break;
 
             case "Driver":
+                userLabelTextView.setText("Rider: ");
                 // Set values of info box
                 userController.getUser(rideRequest.getRider(), new Callback<Map<String, Object>>() {
                     @Override
