@@ -5,10 +5,11 @@
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorBlack">#000000</color>
     <color name="colorAccent">#000000</color>
-    <color name="bannerRed">#EB5757</color>
-    <color name="bannerOrange">#F2994A</color>
-    <color name="bannerGreen">#65CF97</color>
-    <color name="bannerYellow">#F2C94C</color>
-    <color name="bannerBlue">#56CCF2</color>
-    <color name="bannerPurple">#6A0DAD</color>
+    <color name="colorRed">#EB5757</color>
+    <color name="colorOrange">#F2994A</color>
+    <color name="colorGreen">#65CF97</color>
+    <color name="colorYellow">#F2C94C</color>
+    <color name="colorBlue">#56CCF2</color>
+    <color name="colorPurple">#6A0DAD</color>
+    <color name="colorAzure">#0080FF</color>
 </resources>

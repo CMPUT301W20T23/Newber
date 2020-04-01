@@ -73,7 +73,7 @@ exports.sendNotification = functions.firestore
 
                     const notificationContent = {
                         data: {
-                            message: riderUsername + ' accepted your ride!'
+                            message: riderUsername + ' accepted your ride offer!'
                         }
                     };
 

@@ -30,7 +30,6 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.Observer;
 
 /**
  * The Android Activity that handles Driver Accepting Request.
@@ -130,7 +129,7 @@ public class DriverAcceptRequestActivity extends AppCompatActivity {
                     googleMap.addPolyline(new PolylineOptions()
                             .addAll(result.getPoints())
                             .width(20)
-                            .color(getColor(R.color.bannerGreen)));
+                            .color(getColor(R.color.colorGreen)));
                 }
             }
         });
@@ -138,7 +137,7 @@ public class DriverAcceptRequestActivity extends AppCompatActivity {
         // Add pick up and drop off location markers
         googleMap.addMarker(new MarkerOptions().position(pickUp).title("Pick Up"));
         googleMap.addMarker(new MarkerOptions().position(dropOff).title("Drop Off")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
 
         // Move camera
         LatLngBounds latLngBounds = new LatLngBounds.Builder()

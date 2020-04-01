@@ -35,6 +35,8 @@ import java.util.Map;
 public class ProfileActivity extends AppCompatActivity {
 //    private FirebaseAuth mAuth;
     private UserController userController;
+    private User user;
+    private String role;
 
     private TextView fullName;
     private TextView username;
@@ -52,6 +54,7 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
+        role = getIntent().getStringExtra("role");
         setTitle(getString(R.string.profile));
 
         userController = new UserController(this);
@@ -62,11 +65,11 @@ public class ProfileActivity extends AppCompatActivity {
         email = findViewById(R.id.email);
         balance = findViewById(R.id.balance);
 
+
         userController.getUser(new Callback<Map<String, Object>>() {
             @Override
             public void myResponseCallback(Map<String, Object> result) {
-                String role = (String) result.get("role");
-                User user = (User) result.get("user");
+                user = (User) result.get("user");
 
                 switchRoles(role, user);
             }
@@ -82,7 +85,7 @@ public class ProfileActivity extends AppCompatActivity {
                 username.setText(user.getUsername());
                 phone.setText(user.getPhone());
                 email.setText(user.getEmail());
-                balance.setText("$" + Double.valueOf(decFormat.format(user.getBalance())).toString());
+                balance.setText("$" + decFormat.format(user.getBalance()));
 
                 break;
             case "Driver":
@@ -97,7 +100,7 @@ public class ProfileActivity extends AppCompatActivity {
                 username.setText(user.getUsername());
                 phone.setText(user.getPhone());
                 email.setText(user.getEmail());
-                balance.setText("$" + Double.valueOf(decFormat.format(user.getBalance())).toString());
+                balance.setText("$" + decFormat.format(user.getBalance()));
 
                 loadRatings(user.getUid());
                 break;
@@ -109,6 +112,12 @@ public class ProfileActivity extends AppCompatActivity {
         // options menu contains buttons for editing contact info and logging out
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.profile_options_menu, menu);
+
+        if (role.equals("Driver")) {
+            MenuItem menuItem = menu.findItem(R.id.top_up);
+            menuItem.setVisible(false);
+        }
+
         return true;
     }
 
@@ -122,6 +131,13 @@ public class ProfileActivity extends AppCompatActivity {
 
             case R.id.top_up:
                 // modify balance
+                String uid = user.getUid();
+                user.addToBalance(User.START_BALANCE);
+                userController.addToBalance(uid, User.START_BALANCE);
+
+                DecimalFormat decFormat = new DecimalFormat("#.00");
+                balance.setText("$" + decFormat.format(user.getBalance()));
+
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
                 dialogBuilder.setMessage("Your balance has been topped up!");
                 dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
