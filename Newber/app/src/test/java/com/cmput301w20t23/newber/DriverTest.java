@@ -34,17 +34,19 @@ public class DriverTest {
 
         Rider testRider = new Rider();
 
-        testRequest = new RideRequest("123", testStart, testEnd, RequestStatus.PENDING, testRider, testDriver, 10);
         testDriver = new Driver("first",
                 "last",
                 "user",
                 "1234567890",
                 "email@site.ca",
                 "69420",
-                testRequest.getRequestId(),
+                "",
                 testRating);
 
+        testRequest = new RideRequest("123", testStart, testEnd, RequestStatus.PENDING, testRider.getUid(), testDriver.getUid(), 10);
+
         testDriver.setCurrentRequest(testRequest);
+        testDriver.setCurrentRequestId(testRequest.getRequestId());
     }
 
     @Test

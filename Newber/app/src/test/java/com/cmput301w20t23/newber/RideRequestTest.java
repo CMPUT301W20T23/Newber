@@ -51,7 +51,7 @@ public class RideRequestTest {
                 "98765",
                 new Rating(1, 1));
 
-        testRequest = new RideRequest("11111", testStart, testEnd, RequestStatus.PENDING, testRider, testDriver, 10.0);
+        testRequest = new RideRequest("11111", testStart, testEnd, RequestStatus.PENDING, testRider.getUid(), testDriver.getUid(), 10.0);
     }
 
     @Test
@@ -105,12 +105,12 @@ public class RideRequestTest {
 
     @Test
     public void testSetAndGetDriver() {
-        assertTrue(testDriver.equals(testRequest.getDriver()));
+        assertTrue(testDriver.getUid().equals(testRequest.getDriver()));
     }
 
     @Test
     public void testSetAndGetRider() {
-        assertTrue(testRider.equals(testRequest.getRider()));
+        assertTrue(testRider.getUid().equals(testRequest.getRider()));
     }
 
     @Test
