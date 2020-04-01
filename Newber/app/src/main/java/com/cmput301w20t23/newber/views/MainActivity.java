@@ -116,29 +116,29 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 case PENDING:
                     if (role.matches("Rider")) {
                         statusBanner.setText("Requested");
-                        statusBanner.setBackgroundColor(ContextCompat.getColor(this, R.color.bannerRed));
+                        statusBanner.setBackgroundColor(ContextCompat.getColor(this, R.color.colorRed));
                         riderFragment = new RequestPendingFragment(currRequest);
                     }
                     break;
                 case OFFERED:
                     statusBanner.setText("Offered");
-                    statusBanner.setBackgroundColor(ContextCompat.getColor(this, R.color.bannerOrange));
+                    statusBanner.setBackgroundColor(ContextCompat.getColor(this, R.color.colorOrange));
                     System.out.println(user);
                     riderFragment = new RequestOfferedFragment(currRequest, role);
                     break;
                 case ACCEPTED:
                     statusBanner.setText("Accepted");
-                    statusBanner.setBackgroundColor(ContextCompat.getColor(this, R.color.bannerGreen));
+                    statusBanner.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                     riderFragment = new RequestAcceptedFragment(currRequest, role);
                     break;
                 case IN_PROGRESS:
                     statusBanner.setText("In Progress");
-                    statusBanner.setBackgroundColor(ContextCompat.getColor(this, R.color.bannerYellow));
+                    statusBanner.setBackgroundColor(ContextCompat.getColor(this, R.color.colorYellow));
                     riderFragment = new RequestInProgressFragment(currRequest, role);
                     break;
                 case PAYMENT:
                     statusBanner.setText("Payment Processing");
-                    statusBanner.setBackgroundColor(ContextCompat.getColor(this, R.color.bannerBlue));
+                    statusBanner.setBackgroundColor(ContextCompat.getColor(this, R.color.colorBlue));
                     riderFragment = new RequestPaymentFragment(currRequest, role);
                     break;
                 case COMPLETED:
@@ -184,8 +184,10 @@ public class MainActivity extends AppCompatActivity implements Observer {
         switch (item.getItemId()) {
             case R.id.profile:
                 // go to profile activity
-                Intent i = new Intent(this, ProfileActivity.class);
-                this.startActivity(i);
+                Intent intent = new Intent(this, ProfileActivity.class);
+                intent.putExtra("role", role);
+
+                this.startActivity(intent);
                 return true;
 
             default:

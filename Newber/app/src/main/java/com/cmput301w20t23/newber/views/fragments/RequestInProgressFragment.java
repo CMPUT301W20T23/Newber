@@ -21,7 +21,6 @@ import com.cmput301w20t23.newber.helpers.Callback;
 import com.cmput301w20t23.newber.models.RequestStatus;
 import com.cmput301w20t23.newber.models.RideRequest;
 import com.cmput301w20t23.newber.models.User;
-import com.cmput301w20t23.newber.views.MainActivity;
 
 import java.util.Locale;
 import java.util.Map;
@@ -88,7 +87,7 @@ public class RequestInProgressFragment extends Fragment {
                         usernameTextView.setOnClickListener(new NameOnClickListener(getActivity(), userController, role, driver));
                     }
                 });
-
+                
                 completeButton.setText("Complete");
 
                 completeButton.setOnClickListener(new View.OnClickListener()

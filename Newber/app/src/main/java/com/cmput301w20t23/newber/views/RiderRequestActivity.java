@@ -130,7 +130,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         }
 
         endMarker = googleMap.addMarker(new MarkerOptions().position(latLng).title("End")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12.0f));
     }
 
@@ -235,20 +235,20 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         final Button fromMapButton = findViewById(R.id.from_map_button);
         final Button toMapButton = findViewById(R.id.to_map_button);
 
-        fromMapButton.setTextColor(Color.WHITE);
-        fromMapButton.setBackgroundColor(Color.RED);
+        fromMapButton.setTextColor(Color.BLACK);
+        fromMapButton.setBackgroundColor(Color.LTGRAY);
 
-        toMapButton.setTextColor(Color.WHITE);
-        toMapButton.setBackgroundColor(Color.BLUE);
-
+        toMapButton.setTextColor(Color.BLACK);
+        toMapButton.setBackgroundColor(Color.LTGRAY);
+        
         fromMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fromMapButton.setTextColor(Color.BLACK);
-                fromMapButton.setBackgroundColor(Color.LTGRAY);
+                fromMapButton.setTextColor(Color.WHITE);
+                fromMapButton.setBackgroundColor(getColor(R.color.colorPrimary));
 
-                toMapButton.setTextColor(Color.WHITE);
-                toMapButton.setBackgroundColor(Color.BLUE);
+                toMapButton.setTextColor(Color.BLACK);
+                toMapButton.setBackgroundColor(Color.LTGRAY);
 
                 RiderRequestActivity.this.googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                     @Override
@@ -282,11 +282,11 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         toMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                toMapButton.setTextColor(Color.BLACK);
-                toMapButton.setBackgroundColor(Color.LTGRAY);
+                toMapButton.setTextColor(Color.WHITE);
+                toMapButton.setBackgroundColor(getColor(R.color.colorAzure));
 
-                fromMapButton.setTextColor(Color.WHITE);
-                fromMapButton.setBackgroundColor(Color.RED);
+                fromMapButton.setTextColor(Color.BLACK);
+                fromMapButton.setBackgroundColor(Color.LTGRAY);
 
                 RiderRequestActivity.this.googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                     @Override
@@ -420,7 +420,7 @@ public class RiderRequestActivity extends AppCompatActivity implements OnMapRead
         polyline = googleMap.addPolyline(new PolylineOptions()
                 .addAll(points)
                 .width(20)
-                .color(getColor(R.color.bannerGreen)));
+                .color(getColor(R.color.colorGreen)));
     }
 
     /**
