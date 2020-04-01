@@ -1,4 +1,4 @@
-package com.cmput301w20t23.newber.controllers;
+package com.cmput301w20t23.newber.helpers;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
