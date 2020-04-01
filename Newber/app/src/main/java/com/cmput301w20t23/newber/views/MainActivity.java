@@ -142,9 +142,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     riderFragment = new RequestPaymentFragment(currRequest, role);
                     break;
                 case COMPLETED:
-                    statusBanner.setText("Completed");
-                    statusBanner.setBackgroundColor(ContextCompat.getColor(this, R.color.bannerBlue));
-
                     //Update the User Balance, only going to be for rider side. Since, driver
                     //removes the request once it's completed
                     user.subtractFromBalance(currRequest.getCost());

@@ -136,7 +136,6 @@ public class RequestAcceptedFragment extends Fragment {
                 break;
 
             case "Driver": // Rider Picked Up button
-                button.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.bannerYellow));
                 button.setText("Rider picked up");
 
                 userLabelTextView.setText("Rider: ");

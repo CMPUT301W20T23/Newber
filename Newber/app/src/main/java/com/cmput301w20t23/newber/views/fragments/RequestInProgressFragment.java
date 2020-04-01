@@ -89,7 +89,6 @@ public class RequestInProgressFragment extends Fragment {
                     }
                 });
 
-                completeButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.bannerBlue));
                 completeButton.setText("Complete");
 
                 completeButton.setOnClickListener(new View.OnClickListener()
