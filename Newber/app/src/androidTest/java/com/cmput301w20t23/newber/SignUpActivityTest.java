@@ -8,7 +8,6 @@ import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
-import com.cmput301w20t23.newber.views.MainActivity;
 import com.cmput301w20t23.newber.views.SignUpActivity;
 import com.robotium.solo.Solo;
 
@@ -24,8 +23,8 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * Test class for SignUpActivity.
- * All the UI tests are written here.
  * Robotium test framework is used.
+ * @author Arthur Nonay
  */
 @RunWith(AndroidJUnit4ClassRunner.class)
 public class SignUpActivityTest {
@@ -166,7 +165,7 @@ public class SignUpActivityTest {
         solo.enterText((EditText) solo.getView(R.id.user_first_name_sign_up), "Test");
         solo.enterText((EditText) solo.getView(R.id.user_last_name_sign_up), "User");
         // username taken by successfulSignUpTest()
-        solo.enterText((EditText) solo.getView(R.id.username_sign_up), "SignUpTestUI");
+        solo.enterText((EditText) solo.getView(R.id.username_sign_up), "testIntent");
         solo.enterText((EditText) solo.getView(R.id.phone_sign_up), "1234567890");
         solo.enterText((EditText) solo.getView(R.id.email_sign_up), "testSignUpFail@test.com");
         solo.enterText((EditText) solo.getView(R.id.password_sign_up), "testPassword");
@@ -187,30 +186,6 @@ public class SignUpActivityTest {
 
         // current activity must remain SignUpActivity
         solo.assertCurrentActivity("Wrong activity after sign up attempt", SignUpActivity.class);
-    }
-
-    /**
-     * Attempt to sign up with valid entries and assert activity switch to MainActivity.
-     * In order for this test to pass, ensure no other accounts exist with identical username and email in database.
-     */
-    @Test
-    public void successfulSignUpTest() {
-        // current activity must be SignUpActivity
-        solo.assertCurrentActivity("Wrong activity", SignUpActivity.class);
-
-        // enter valid entries on sign up form
-        solo.clickOnView(solo.getView(R.id.radio_rider));
-        solo.enterText((EditText) solo.getView(R.id.user_first_name_sign_up), "Test");
-        solo.enterText((EditText) solo.getView(R.id.user_last_name_sign_up), "User");
-        solo.enterText((EditText) solo.getView(R.id.username_sign_up), "SignUpTestUI");
-        solo.enterText((EditText) solo.getView(R.id.phone_sign_up), "1234567890");
-        solo.enterText((EditText) solo.getView(R.id.email_sign_up), "testUserSignUp@test.com");
-        solo.enterText((EditText) solo.getView(R.id.password_sign_up), "testPassword");
-        solo.enterText((EditText) solo.getView(R.id.confirm_password_sign_up), "testPassword");
-        solo.clickOnButton("Sign Up");
-
-        // current activity must switch to MainActivity
-        solo.assertCurrentActivity("Wrong activity after sign up attempt", MainActivity.class);
     }
 
     /**

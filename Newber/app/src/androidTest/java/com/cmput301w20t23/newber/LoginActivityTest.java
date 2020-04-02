@@ -24,13 +24,16 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * Test class for LoginActivity.
- * All the UI tests are written here.
  * Robotium test framework is used.
+ * @author Arthur Nonay
  */
 @RunWith(AndroidJUnit4ClassRunner.class)
 public class LoginActivityTest {
     private Solo solo;
 
+    /**
+     * Tells the test to start in the login activity
+     */
     @Rule
     public ActivityTestRule<LoginActivity> rule =
             new ActivityTestRule<>(LoginActivity.class, true, true);
@@ -62,7 +65,7 @@ public class LoginActivityTest {
         solo.assertCurrentActivity("Wrong activity", LoginActivity.class);
 
         // enter invalid login credentials and attempt login
-        solo.enterText((EditText) solo.getView(R.id.email_login), "testLogin@test.com");
+        solo.enterText((EditText) solo.getView(R.id.email_login), "testLogin@intent.com");
         solo.enterText((EditText) solo.getView(R.id.password_login), "incorrectPassword");
         solo.clickOnButton("Login");
 
@@ -91,7 +94,7 @@ public class LoginActivityTest {
         solo.assertCurrentActivity("Wrong activity", LoginActivity.class);
 
         // enter valid login credentials and attempt login
-        solo.enterText((EditText) solo.getView(R.id.email_login), "testLogin@test.com");
+        solo.enterText((EditText) solo.getView(R.id.email_login), "testLogin@intent.com");
         solo.enterText((EditText) solo.getView(R.id.password_login), "correctPassword");
         solo.clickOnButton("Login");
 

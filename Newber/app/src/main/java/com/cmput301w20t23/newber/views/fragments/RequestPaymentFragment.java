@@ -1,6 +1,5 @@
 package com.cmput301w20t23.newber.views.fragments;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,32 +8,29 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
 import com.cmput301w20t23.newber.R;
-import com.cmput301w20t23.newber.controllers.RideController;
-import com.cmput301w20t23.newber.controllers.UserController;
 import com.cmput301w20t23.newber.models.RideRequest;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 
+/**
+ * The Android fragment shown when the user is paying for, or receiving payment for a ride
+ *
+ * @author Arthur Nonay, Ibrahim Aly
+ */
 public class RequestPaymentFragment extends Fragment {
     private RideRequest rideRequest;
     private String role;
     private String requestId;
 
-    private RideController rideController = new RideController();
-    private UserController userController = new UserController(this.getContext());
-
     private Bitmap userBitmap;
     private ImageView qrImage;
-    private ImageView qrPicture;
     private TextView driverTextView;
     private Button qrScanButton;
 

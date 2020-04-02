@@ -1,22 +1,20 @@
 package com.cmput301w20t23.newber.views;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.cmput301w20t23.newber.R;
-import com.cmput301w20t23.newber.controllers.RideController;
 import com.cmput301w20t23.newber.controllers.UserController;
-import com.cmput301w20t23.newber.models.Rating;
 import com.cmput301w20t23.newber.helpers.Callback;
+import com.cmput301w20t23.newber.models.Rating;
 
 public class RatingActivity extends AppCompatActivity {
 
     private UserController userController;
-    private RideController rideController;
     private String driverUid;
     private Rating rating;
 
@@ -28,7 +26,6 @@ public class RatingActivity extends AppCompatActivity {
         setTitle("Rate Your Driver");
 
         userController = new UserController(this);
-        rideController = new RideController();
 
         // Get Driver UID through Intent
         driverUid = getIntent().getStringExtra("driverUid");

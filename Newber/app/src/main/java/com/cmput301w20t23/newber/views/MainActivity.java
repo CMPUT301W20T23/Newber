@@ -213,6 +213,9 @@ public class MainActivity extends AppCompatActivity implements Observer {
         displayFragment();
     }
 
+    /**
+     * handler for QR Code scanning from the camera
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -228,6 +231,9 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     this.userController.transferBalance(currRequest);
                     this.rideController.finishRideRequest(user, currRequest);
                     currRequest = null;
+                }
+                else{
+                    Toast.makeText(this, "This is not a ride you have driven for!", Toast.LENGTH_LONG).show();
                 }
             }
         }
