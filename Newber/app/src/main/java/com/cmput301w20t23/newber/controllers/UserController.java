@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * Controller class for handling all user-related data processing.
  *
- * @author Jessica D'Cunha, Gaurav Sekhar
+ * @author Jessica D'Cunha, Gaurav Sekhar, Ibrahim Aly
  */
 public class UserController {
     private Context context;
@@ -262,19 +262,36 @@ public class UserController {
         databaseAdapter.setUserCurrentRequestId(uid, "");
     }
 
+    /**
+     * Get the current from the Firebase Auth
+     * @param callback the callback that will be returned to the activity
+     */
     public void getUser(Callback<Map<String, Object>> callback) {
         String uid = mAuth.getCurrentUser().getUid();
         databaseAdapter.getUser(uid, callback);
     }
 
+    /**
+     * Gets the entire User Object from its ID from Firestore, and returns it in the Callback
+     * @param uid The ID of the User that needs to be looked up
+     * @param callback   The callback function that contains the information of the user
+     */
     public void getUser(String uid, Callback<Map<String, Object>> callback) {
         databaseAdapter.getUser(uid, callback);
     }
 
+    /**
+     * Get the Rating Object from the Driver's ID from Firestore, and return it in the Callback
+     * @param uid The ID of the Driver that needs to be looked up
+     * @param callback The callback function that contains the information of the Rating
+     */
     public void getRating(String uid, Callback<Rating> callback) {
         databaseAdapter.getRating(uid ,callback);
     }
 
+    /**
+     * Registers the current device's token in Firestore to enable Push Notification
+     */
     public void registerUserToken() {
         FirebaseInstanceId.getInstance().getInstanceId()
             .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
@@ -295,19 +312,35 @@ public class UserController {
             });
     }
 
+    /**
+     * Remove the current device's token from Firestore
+     */
     public void removeUserToken() {
         String uid = getCurrentUserId() ;
         databaseAdapter.setUserToken(uid, null);
     }
 
+    /**
+     * Get the current user's ID from the Firebase Auth
+     * @return
+     */
     public String getCurrentUserId() {
         return mAuth.getCurrentUser().getUid();
     }
 
+    /**
+     * Update the balance of the user
+     * @param uid ID of the User
+     * @param cost Value to increment the balance with
+     */
     public void addToBalance(String uid, double cost) {
         this.databaseAdapter.incrementUserBalance(uid, cost);
     }
 
+    /**
+     * Transfers the balance between the driver and rider
+     * @param rideRequest The Ride Request that holds all the information (rider, driver, cost)
+     */
     public void transferBalance(RideRequest rideRequest) {
         double cost = rideRequest.getCost();
 
@@ -315,6 +348,11 @@ public class UserController {
         addToBalance(rideRequest.getDriver(), cost);
     }
 
+    /**
+     * Update the Rating of the Driver
+     * @param uid ID of the Driver
+     * @param rating New Rating
+     */
     public void updateRating(String uid, final Rating rating) {
         this.databaseAdapter.updateRating(uid, rating);
     }

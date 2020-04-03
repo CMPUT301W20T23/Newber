@@ -17,6 +17,7 @@ public class User implements Serializable {
     private String currRequestId;
     private double balance;
 
+    //The start balance when a user first signs up
     public final static double START_BALANCE = 200;
 
     /**
@@ -29,7 +30,6 @@ public class User implements Serializable {
      * @param email     the email
      * @param uId       the user id
      */
-
     public User(String firstName, String lastName, String username, String phone, String email, String uId) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -41,6 +41,17 @@ public class User implements Serializable {
         this.balance = START_BALANCE;
     }
 
+    /**
+     * Instantiates a new User.
+     *
+     * @param firstName the first name
+     * @param lastName  the last name
+     * @param username  the username
+     * @param phone     the phone
+     * @param email     the email
+     * @param uId       the user id
+     * @param balance the current account balance
+     */
     public User(String firstName, String lastName, String username, String phone, String email, String uId,
                 double balance) {
         this.firstName = firstName;
@@ -168,6 +179,10 @@ public class User implements Serializable {
 
     public void setCurrentRequestId(String currRequestId) { this.currRequestId = currRequestId; }
 
+    /**
+     * Gets the full name of the user
+     * @return The full name of the user
+     */
     public String getFullName() { return this.firstName + " " + this.lastName; };
 
     public double getBalance() { return this.balance; }
@@ -176,6 +191,10 @@ public class User implements Serializable {
         this.balance = START_BALANCE;
     }
 
+    /**
+     * Adds to balance
+     * @param cost
+     */
     public void addToBalance(double cost) {
         this.balance += cost;
     }

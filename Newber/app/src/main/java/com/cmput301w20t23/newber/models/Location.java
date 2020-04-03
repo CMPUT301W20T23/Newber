@@ -7,6 +7,9 @@ import com.google.android.libraries.places.api.model.Place;
 
 import java.io.Serializable;
 
+/**
+ * Simple class that represents a location
+ */
 public class Location implements Serializable {
     private String name;
     private double latitude;

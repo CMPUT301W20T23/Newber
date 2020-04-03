@@ -1,4 +1,7 @@
 com.cmput301w20t23.newber
 com.cmput301w20t23.newber.controllers
+com.cmput301w20t23.newber.database
+com.cmput301w20t23.newber.helpers
 com.cmput301w20t23.newber.models
 com.cmput301w20t23.newber.views
+com.cmput301w20t23.newber.views.fragments
