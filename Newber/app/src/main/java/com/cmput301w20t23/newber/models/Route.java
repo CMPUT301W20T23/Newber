@@ -4,6 +4,9 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
+/**
+ * Class to handle drawing a route between a start and location, used in RouteGetter
+ */
 public class Route {
     private List<LatLng> points;
     private double distanceInMetres;

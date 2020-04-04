@@ -99,6 +99,9 @@ public class RequestPaymentFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Function that handles the rider-side of the QR transaction. Creates a QR code with the request ID encoded
+     */
     public void handleRiderQR() {
         qrImage.setVisibility(View.VISIBLE);
         driverTextView.setVisibility(View.VISIBLE);
@@ -113,6 +116,10 @@ public class RequestPaymentFragment extends Fragment {
         }
     }
 
+    /**
+     * Function that handles the driver-side of the QR transaction. Starts a new IntentIntegrator from zxing
+     * when the Scan button is clicked.
+     */
     public void handleDriverQR() {
         qrScanButton.setVisibility(View.VISIBLE);
         System.out.println("handleDriverQR, qrScanButton vis: " + qrScanButton.getVisibility());

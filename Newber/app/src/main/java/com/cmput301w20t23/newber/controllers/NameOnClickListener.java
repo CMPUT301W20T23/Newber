@@ -39,6 +39,7 @@ public class NameOnClickListener implements View.OnClickListener {
         this.role = role;
         this.user = user;
     }
+
     @Override
     public void onClick(View view) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
